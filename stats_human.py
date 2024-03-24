@@ -1,12 +1,16 @@
-import calendar,string, random, time, requests, re, os,subprocess,pyautogui, configparser, datetime,sys
+import random, time,os,subprocess,pyautogui, configparser, datetime,sys
 from random import randint, choice, choices
 from colorama import Fore, Style
-from function_utils_aux import buscar_imagen_y_clic,obtener_hora_actual,read_config,close_firefox_window
+from function_utils_aux import buscar_imagen_y_clic,obtener_hora_actual
+# Obtiene las Estadisticas usando pyautogui simulando ser un humano.
 
 # Verificar si se pasaron los argumentos enecesarios y si no leerlo desde archivo.
 playlist_id = sys.argv[1]
 nombre_playlist = str(sys.argv[2])
 playlist_duration = str(sys.argv[3])
+
+from playlist_info import obtener_info_playlist_from_spotify
+obtener_info_playlist_from_spotify(playlist_id)
 
 """
     if len(sys.argv) == 4:
@@ -25,7 +29,6 @@ config.read(os.path.join(os.path.dirname(__file__), "account.txt"))
 
 your_username = config['Credentials']['username']
 your_password = config['Credentials']['password']
-normalized_playlistname = re.sub(r'[^\w\-_.]', '', nombre_playlist)
 # Obtener la ruta absoluta del directorio del script
 directorio_actual = os.path.dirname(os.path.abspath(__file__))
 url_estaditicas_spotify = "https://www.statsforspotify.com/track/recent"
@@ -38,8 +41,7 @@ mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
 DIRECTORY = os.path.join(os.path.dirname(__file__), "Stats") 
 now = datetime.datetime.now()    # Obtener la fecha y hora actual
 timestamp = now.strftime("%d-%m-%Y_%H-%M")
-#   normalized_filename = re.sub(r'[^\w\-_.]', '', nombre_playlist)
-filename = "{}_{}.pdf".format(normalized_playlistname, timestamp)
+filename = "{}_{}.pdf".format(playlist_id, timestamp)
 nombre_archivo = (os.path.join(DIRECTORY, filename))
 
 
@@ -140,7 +142,7 @@ from telegram_aux import enviar_archivo_telegram
 import asyncio
 token = "6563344306:AAEXTdxkC1btSc-C2nV3cfts6r5ZSy_ABGw"
 chat_ids = ["699683569","828562504"]       # ID del Chat
-archivo_configuracion = os.path.join(directorio_actual, "playlists", normalized_playlistname + ".ini")
+archivo_configuracion = os.path.join(directorio_actual, "playlists", playlist_id + ".ini")
 config = configparser.ConfigParser()
 config.read(archivo_configuracion)
 print(f'{mensaje_hora} Directorio: {archivo_configuracion}')

@@ -64,8 +64,6 @@ else:
     # Cargar las variables desde el archivo
     your_username, your_password, playlist_id, nombre_playlist, playlist_duration,virtual_machine = read_config()
 
-# Normalizar nombres para evitar errores raros con cadenas y caracteres extranos
-normalized_playlistname = re.sub(r'[^\w\-_.]', '', nombre_playlist)
 
 mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
 
@@ -79,7 +77,7 @@ chat_ids = ["699683569","828562504"]       # ID del Chat
 now = datetime.datetime.now()    # Obtener la fecha y hora actual
 timestamp = now.strftime("%d-%m-%Y_%H-%M")
 #   normalized_filename = re.sub(r'[^\w\-_.]', '', nombre_playlist)
-filename = "{}_{}.png".format(normalized_playlistname, timestamp)
+filename = "{}_{}.png".format(playlist_id, timestamp)
 nombre_archivo = (os.path.join(DIRECTORY, filename))
 
 # Navegar a la página de inicio de sesión
@@ -151,12 +149,7 @@ def get_stats(browser):
 
 # Actualizar la Clave en el Fichero
 def send_capture_telegram(): 
-    directorio_actual = os.path.dirname(os.path.abspath(__file__))
-    archivo_configuracion = os.path.join(directorio_actual, "playlists", normalized_playlistname + ".ini")
-
-    config = configparser.ConfigParser()
-    config.read(archivo_configuracion)
-    print(f'{mensaje_hora} Directorio: {archivo_configuracion}')
+    config = configparser.ConfigParser().read(os.path.join(os.path.dirname(os.path.abspath(__file__)), "playlists", playlist_id + ".ini"))
     # Leer los campos de la sección 'Playlist'
     playlist_name = config.get('Playlist', 'nombre')
     playlist_duration_minutes = int(config.get('Playlist', 'duracion'))

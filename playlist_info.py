@@ -1,18 +1,12 @@
-import os,re
 from colorama import Fore, Style
 from function_utils_aux import obtener_hora_actual,read_config
-os.environ['DISPLAY'] = ':0'
-
-mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
-import datetime,time
-import spotipy,sys
+import spotipy,sys,time,os
 from spotipy.oauth2 import SpotifyClientCredentials
 
 import configparser
-# Leer Argumentos
-#playlist_id = sys.argv[1]
-#normalized_playlistname = sys.argv[2]
-# Leer Argumentos pasados por parametros dede la funcion principal
+
+os.environ['DISPLAY'] = ':0'
+mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
 if len(sys.argv) == 4:
     # Cargar los argumentos como variables
     playlist_id = sys.argv[1]
@@ -21,10 +15,6 @@ if len(sys.argv) == 4:
 else:
     # Cargar las variables desde el archivo
     your_username, your_password, fecha_creacion,playlist_id, nombre_playlist, playlist_duration,virtual_machine = read_config()
-
-# Normalizar nombres para evitar errores raros con cadenas y caracteres extranos
-normalized_playlistname = re.sub(r'[^\w\-_.]', '', nombre_playlist)
-
 
 def obtener_info_playlist_from_spotify(playlist_id):
     # Configurar las credenciales del cliente de Spotify
@@ -39,8 +29,7 @@ def obtener_info_playlist_from_spotify(playlist_id):
         total_duration_ms = 0
         tracks = []  # Lista para almacenar los tracks de la playlist
 
-        # Obtener todos los tracks de la playlist
-        results = sp.playlist_items(playlist_id, fields='items(track(name, artists(name), duration_ms)), total')
+        # Obtener todos los tracks de la playlistame, artists(name), duration_ms)), total')
         playlist_tracks = results['items']
 
         while 'next' in results and results['next']:
@@ -74,9 +63,7 @@ def obtener_info_playlist_from_spotify(playlist_id):
         for i, track in enumerate(tracks):
             track_section = 'Track{}'.format(i + 1)
             config[track_section] = track
-        
-        folder_playlists = "playlists"
-        config_file_path = os.path.join(os.path.dirname(__file__), folder_playlists, normalized_playlistname + ".ini")
+        config_file_path = os.path.join(os.path.dirname(__file__), "playlists", playlist_id + ".ini")
         with open(config_file_path, 'w') as configfile:
             config.write(configfile)
 
@@ -92,4 +79,3 @@ def obtener_info_playlist_from_spotify(playlist_id):
         print("Se produjo un error de conexión. Se mostrará una advertencia y se continuará sin hacer cambios.")
         time.sleep(5)
         return None
-obtener_info_playlist_from_spotify(playlist_id)

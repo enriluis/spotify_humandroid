@@ -1,8 +1,9 @@
 import time,subprocess,requests,random,os,configparser,threading,re,json,datetime
 from colorama import Fore, Style
-from function_utils_aux import lanzar_spotify,obtener_hora_actual,connect_vpn_randomly,minimizar_spotify,read_config,obtener_info_playlist
+from function_utils_aux import lanzar_spotify,obtener_hora_actual,connect_vpn_randomly,minimizar_spotify,read_config
 
 mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
+script_directory = os.path.dirname(os.path.abspath(__file__))
 
 def verificar_y_abrir_spotify():
     if not verificar_spotify():
@@ -35,16 +36,14 @@ def reset_spotify_app():
 your_username, your_password,fecha_creacion, playlist_id, nombre_playlist, playlist_duration,virtual_machine = read_config()
 
 
-normalized_playlistname = re.sub(r'[^\w\-_.]', '', nombre_playlist)
-directorio_actual = os.path.dirname(os.path.abspath(__file__))
-archivo_configuracion = os.path.join(directorio_actual, "playlists", normalized_playlistname + ".ini")
-config = configparser.ConfigParser()
-config.read(archivo_configuracion)
-playlist_duration_minutes = int(config.get('Playlist', 'duracion'))
-playlist_duration = playlist_duration_minutes # Reescribir la variable duracion para  obtener el valor real
+from playlist_info import obtener_info_playlist_from_spotify
+
+archivo_configuracion = os.path.join(script_directory, "playlists", playlist_id + ".ini")
+config = configparser.ConfigParser().read(archivo_configuracion)
+playlist_duration = int(config.get('Playlist', 'duracion'))
 
 def playlist_favorite(): 
-
+    obtener_info_playlist_from_spotify(playlist_id)
     mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
     current_time = datetime.datetime.now().time()
     plus_time = random.randint(3, 15)  # Tiempo adicional en minutos que se sumará a la duración
@@ -66,8 +65,8 @@ def playlist_favorite():
         if current_time >= end_time:
             print(f"{mensaje_hora} Stopping Main Playlist: {nombre_playlist} pasado {float(playlist_duration) + plus_time} Minutos end_time={end_time}")
             subprocess.run(['sp', 'stop'])
-            print(f"{mensaje_hora} Ejecutando estadísticas para la playlist {nombre_playlist}...")
-            subprocess.run(['python3', '/home/lmb/spotify/estadisticas.py', playlist_id,str(nombre_playlist), str(playlist_duration)])
+            estadisticas_script = os.path.join(script_directory, 'estadisticas.py')
+            subprocess.run(['python3', estadisticas_script, playlist_id, str(nombre_playlist), str(playlist_duration)])            
             time.sleep(300)    # ciclo que comprueba a duracion de la reproduccion de favorite playlist
             break
 
@@ -78,5 +77,7 @@ playlist_favorite()
 
 print(f"{mensaje_hora} Continuar con el monitoreo normal...")
 time.sleep(300)
-subprocess.run(['python3', '/home/lmb/spotify/spotify_monitor.py'])
+
+spotify_monitor = os.path.join(script_directory, 'spotify_monitor.py')
+subprocess.run(['python3', spotify_monitor])
 

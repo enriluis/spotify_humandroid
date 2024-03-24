@@ -36,7 +36,6 @@ DIRECTORY = os.path.join(os.path.dirname(__file__), "Stats")  # Ruta al director
 # Token de acceso del bot de Telegram
 token = "6563344306:AAEXTdxkC1btSc-C2nV3cfts6r5ZSy_ABGw"
 chat_ids = ["699683569","828562504"]       # ID del Chat
-#caption = description  # Descripción o leyenda que deseas enviar
 now = datetime.datetime.now()    # Obtener la fecha y hora actual
 timestamp = now.strftime("%d-%m-%Y_%H-%M")
 #   normalized_filename = re.sub(r'[^\w\-_.]', '', nombre_playlist)
@@ -47,9 +46,7 @@ nombre_archivo = (os.path.join(DIRECTORY, filename))
 def iniciar_sesion_get_stats(url, username, password):
     mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
     print(f"{mensaje_hora} Iniciando sesion en modo marioneta con la cuenta {your_username}")
-    # Configurar opciones del navegador Firefox
     firefox_options = Options()
-    # Crear una lista de user agents
     user_agents = [
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
@@ -103,18 +100,7 @@ def iniciar_sesion_get_stats(url, username, password):
             wait.until(EC.visibility_of_element_located((By.XPATH, "//h2[contains(.,'Recently played Tracks')]")))
             wait.until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
             print(f'{mensaje_hora} Esperando que cargue la pagina completamente')
-    #svg_element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'svg')))
 
-    #wait.until(EC.presence_of_element_located(By.XPATH,"/html/body/div/[2]/div/div[1]/svg"))
-    #browser.find_element(By.CSS_SELECTOR, 'svg').click
-    # //*[@class='update-button']/*[name()='svg']
-    #browser.execute_script("arguments[0].scrollIntoView();", svg_element)
-
-    # Click on the SVG element
-    #svg_element.click()
-
-
-    # Tomar una captura de pantalla de la página web utilizando el objeto browser
     time.sleep(25.1)
     browser.save_full_page_screenshot(nombre_archivo)
     print(f'{mensaje_hora} Salvando página web como {nombre_archivo} y esperando unos segundos')
@@ -144,10 +130,6 @@ def iniciar_sesion_get_stats(url, username, password):
     # loop.run_until_complete(enviar_archivo_telegram(token, chat_ids, archivo=archivo_configuracion, caption=caption_mensaje))
 
 def main():
-    # Datos para iniciar sesión 
-    active_vpn = get_active_vpn()
-    if active_vpn:
-        disconnect_vpn(active_vpn)    
     import subprocess
 
     url = "https://www.statsforspotify.com/track/recent"

@@ -148,15 +148,15 @@ def playlist_random():
             rotate_time = random.randint(39, 59) * 60
             time.sleep(rotate_time)
 
+from playlist_info import obtener_info_playlist_from_spotify
 
-normalized_playlistname = re.sub(r'[^\w\-_.]', '', nombre_playlist)
-archivo_configuracion = os.path.join(script_directory, "playlists", normalized_playlistname + ".ini")
-config = configparser.ConfigParser()
-config.read(archivo_configuracion)
-playlist_duration_minutes = int(config.get('Playlist', 'duracion'))
-playlist_duration = playlist_duration_minutes
+archivo_configuracion = os.path.join(script_directory, "playlists", playlist_id + ".ini")
+config = configparser.ConfigParser().read(archivo_configuracion)
+playlist_duration = int(config.get('Playlist', 'duracion'))
+
 
 def playlist_favorite():
+    obtener_info_playlist_from_spotify(playlist_id)
     global is_playing   
     mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
     current_time = datetime.datetime.now().time()
@@ -188,10 +188,7 @@ def playlist_favorite():
                 is_playing = False  # Establecer la variable de estado a False ya que se detendra la funcion
                 subprocess.run(['sp', 'stop'])
                 print(f"{mensaje_hora} Ejecutando estadísticas para la playlist {nombre_playlist}...")
-                normalized_filename = re.sub(r'[^\w\-_.]', '', nombre_playlist)
-                playlist_info_script = os.path.join(script_directory, 'playlist_info.py')
                 estadisticas_script = os.path.join(script_directory, 'estadisticas.py')
-                subprocess.run(['python3', playlist_info_script, playlist_id, normalized_filename, str(playlist_duration)])
                 subprocess.run(['python3', estadisticas_script, playlist_id, str(nombre_playlist), str(playlist_duration)])
                 
                 time.sleep(300)    # ciclo que comprueba a duracion de la reproduccion de favorite playlist
