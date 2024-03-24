@@ -10,8 +10,8 @@ def verificar_spotify():
 verificar_spotify()
 register_spotify_account()
 time.sleep(6.1)
-#perform_task_with_delay()
-#seguir_artist_list_aleatorias()
+
+favorite_playlist = os.path.join(script_directory, 'favorite_playlist.py')
+subprocess.run(['python3', favorite_playlist])
 
 subprocess.run(['python3', '/home/lmb/spotify/favorite_playlist.py'])
-
