@@ -33,7 +33,7 @@ def reset_spotify_app():
     lanzar_spotify()
 
 
-your_username, your_password,fecha_creacion, playlist_id, nombre_playlist, playlist_duration,virtual_machine = read_config()
+your_username, your_password,creation_date,playlist_id,virtual_machine,bot_token,bot_chat_ids, client_id, client_secret = read_config()
 
 
 from playlist_info import obtener_info_playlist_from_spotify
@@ -41,6 +41,7 @@ from playlist_info import obtener_info_playlist_from_spotify
 archivo_configuracion = os.path.join(script_directory, "playlists", playlist_id + ".ini")
 config = configparser.ConfigParser().read(archivo_configuracion)
 playlist_duration = int(config.get('Playlist', 'duracion'))
+playlist_name = config.get('Playlist', 'playlist_name')
 
 def playlist_favorite(): 
     obtener_info_playlist_from_spotify(playlist_id)
@@ -51,11 +52,11 @@ def playlist_favorite():
     start_time = datetime.datetime.now() + datetime.timedelta(minutes=random_wait_time)  # Obtener el tiempo actual y agregar el tiempo de espera
     end_time = start_time + datetime.timedelta(minutes=int(playlist_duration) + plus_time)  # Calcular el tiempo de finalización sumando la duración total y el tiempo adicional 
     
-    print(f"{mensaje_hora} Playing: {nombre_playlist} en {random_wait_time} segundos...")
+    print(f"{mensaje_hora} Playing: {playlist_name} en {random_wait_time} segundos...")
     time.sleep(random_wait_time)  # Convertir el tiempo de espera a segundos
     
     subprocess.run(['sp', 'open', f'spotify:playlist:{playlist_id}'])
-    print(f"{mensaje_hora} Playing Main Playlist: {nombre_playlist} Duration {float(playlist_duration) + plus_time} Minutos, iniciando a las {start_time} y se detendrá a las {end_time} ")        
+    print(f"{mensaje_hora} Playing Main Playlist: {playlist_name} Duration {float(playlist_duration) + plus_time} Minutos, iniciando a las {start_time} y se detendrá a las {end_time} ")        
     subprocess.run(['sp', 'pause']) 
     subprocess.run(['sp', 'play']) 
     while True:
@@ -63,10 +64,10 @@ def playlist_favorite():
         current_time = datetime.datetime.now()  # Actualizar el tiempo actual utilizando datetime.now()
             
         if current_time >= end_time:
-            print(f"{mensaje_hora} Stopping Main Playlist: {nombre_playlist} pasado {float(playlist_duration) + plus_time} Minutos end_time={end_time}")
+            print(f"{mensaje_hora} Stopping Main Playlist: {playlist_name} pasado {float(playlist_duration) + plus_time} Minutos end_time={end_time}")
             subprocess.run(['sp', 'stop'])
             estadisticas_script = os.path.join(script_directory, 'estadisticas.py')
-            subprocess.run(['python3', estadisticas_script, playlist_id, str(nombre_playlist), str(playlist_duration)])            
+            subprocess.run(['python3', estadisticas_script, playlist_id, str(playlist_name), str(playlist_duration)])            
             time.sleep(300)    # ciclo que comprueba a duracion de la reproduccion de favorite playlist
             break
 
