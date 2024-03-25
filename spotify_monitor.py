@@ -71,7 +71,7 @@ def load_time_range():
     return favorite_start_time, favorite_end_time, second_cycle_start_time, second_cycle_end_time, break_start_time, break_end_time
 
 favorite_start_time, favorite_end_time, second_cycle_start_time, second_cycle_end_time, break_start_time, break_end_time = load_time_range()
-your_username, your_password,creation_date, playlist_id,virtual_machine = read_config()
+your_username, your_password,creation_date,playlist_id,virtual_machine,bot_token,bot_chat_ids, client_id, client_secret = read_config()
 is_playing = False
 
 def is_break_time(break_start_time, break_end_time):

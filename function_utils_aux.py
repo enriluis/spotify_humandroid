@@ -173,7 +173,7 @@ def close_all_windows():
 
 def read_config():
     config = configparser.ConfigParser()
-    config.read(os.path.join(os.path.dirname(__file__), "account.txt"))    
+    config.read(os.path.join(os.path.dirname(__file__), "account.ini"))    
     # Read 'Credentials'
     your_username = config.get('Credentials', 'Username')
     your_password = config.get('Credentials', 'Password')
@@ -185,13 +185,13 @@ def read_config():
     bot_token = config.get('telegram_bot', 'token')
     bot_chat_ids = config.get('telegram_bot', 'chat_ids')
     #
-    spotify_client_id = config.get('spotify_credentials', 'client_id')
-    spotify_client_secret = config.get('spotify_credentials', 'client_secret')        
-    return your_username, your_password,creation_date,playlist_id,virtual_machine,bot_token,bot_chat_ids, spotify_client_id, spotify_client_secret
+    client_id = config.get('spotify_credentials', 'client_id')
+    client_secret = config.get('spotify_credentials', 'client_secret')     
+    return your_username, your_password,creation_date,playlist_id,virtual_machine,bot_token,bot_chat_ids, client_id, client_secret
 
 # Leer todas las configuraciones
 # para leer independiente: ejemplo duration = read_config()[4]
-your_username, your_password,creation_date,playlist_id,virtual_machine,bot_token,bot_chat_ids, spotify_client_id, spotify_client_secret = read_config()
+your_username, your_password,creation_date,playlist_id,virtual_machine,bot_token,bot_chat_ids, client_id, client_secret = read_config()
 
 
 # Obtener la ruta absoluta del directorio del script

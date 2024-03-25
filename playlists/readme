@@ -1,1 +1,4 @@
-# Files with playlist info: Duration, tracks, url, uri etc!
+Files with playlist info: Duration, tracks, url, uri etc!
+in the actual directory will store playlist info updated from spotoify api query
+do not update manyally run the playlist_info.py script and do not forget update you 
+cliet id and secret from spotify!
