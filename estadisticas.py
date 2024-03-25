@@ -1,45 +1,26 @@
 from selenium import webdriver
-from selenium.common.exceptions import WebDriverException
-from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.firefox.options import Options
-import random, time, datetime, os,asyncio,re,configparser,sys
+import random, time, datetime, os,asyncio,configparser,sys
 from colorama import Fore, Style
 from telegram import Bot
-from function_utils_aux import obtener_hora_actual,connect_vpn_randomly,disconnect_vpn,get_active_vpn,read_config
+from function_utils_aux import obtener_hora_actual,read_config
 from telegram_aux import enviar_archivo_telegram
 
-# Verificar si se pasaron los argumentos enecesarios y si no leerlo desde archivo.
 if len(sys.argv) == 4:
-    # Cargar los argumentos como variables
     playlist_id = sys.argv[1]
     nombre_playlist = str(sys.argv[2])
     playlist_duration = str(sys.argv[3])
 else:
-    # Cargar las variables desde el archivo
-    your_username, your_password, fecha_creacion,playlist_id, nombre_playlist, playlist_duration,virtual_machine = read_config()
-
-# Normalizar nombres para evitar errores raros con cadenas y caracteres extranos
-normalized_playlistname = re.sub(r'[^\w\-_.]', '', nombre_playlist)
+    your_username, your_password,creation_date,playlist_id,virtual_machine,bot_token,bot_chat_ids, spotify_client_id, spotify_client_secret = read_config()
 
 mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
-## Leer la playlist_id y la descripción
-config = configparser.ConfigParser()
-config.read(os.path.join(os.path.dirname(__file__), "account.txt"))
-your_username = config['Credentials']['username']
-your_password = config['Credentials']['password']
-
-# Directorio para guardar las imágenes
-DIRECTORY = os.path.join(os.path.dirname(__file__), "Stats")  # Ruta al directorio donde se guardará la imagen
-# Token de acceso del bot de Telegram
-token = "6563344306:AAEXTdxkC1btSc-C2nV3cfts6r5ZSy_ABGw"
-chat_ids = ["699683569","828562504"]       # ID del Chat
-now = datetime.datetime.now()    # Obtener la fecha y hora actual
+DIRECTORY = os.path.join(os.path.dirname(__file__), "Stats")
+now = datetime.datetime.now() 
 timestamp = now.strftime("%d-%m-%Y_%H-%M")
-#   normalized_filename = re.sub(r'[^\w\-_.]', '', nombre_playlist)
-filename = "{}_{}.png".format(normalized_playlistname, timestamp)
+filename = "{}_{}.png".format(playlist_id, timestamp)
 nombre_archivo = (os.path.join(DIRECTORY, filename))
 
 
@@ -74,26 +55,20 @@ def iniciar_sesion_get_stats(url, username, password):
     browser.find_element(By.XPATH, "//input[@id='login-password']").send_keys(password)
     browser.find_element(By.ID, 'login-button').click()
     print(f"{mensaje_hora} Insertando Usuario {username} y Clave {password} para iniciar sesion")
-    # Esperar hasta que el elemento deseado sea visible y la página haya cargado por completo
-    wait = WebDriverWait(browser, 15)  # Esperar hasta 35 segundos
-    # Esperar hasta que el elemento deseado sea visible y la página haya cargado por completo
+    wait = WebDriverWait(browser, 15) 
     error_message = "//span[contains(.,'Oops! Something went wrong, please try again or check out our help area')]"
     try:
-        # Verificar si se muestra el mensaje de error
         error_element = WebDriverWait(browser, 5.1).until(EC.visibility_of_element_located((By.XPATH, error_message)))
         print(f"{mensaje_hora} Se encontro error reintentando")
-
-        # Hacer clic en el botón
         browser.find_element(By.ID, 'login-button').click()
         print(f"{mensaje_hora} Se hizo clic en el botón nuevamente")
-        browser.find_element(By.XPATH, "//p[contains(.,'Agree')]").click()   # Autorizar la cta
+        browser.find_element(By.XPATH, "//p[contains(.,'Agree')]").click()
     except:
         try:
             success_element =  WebDriverWait(browser, 5.1).until(EC.visibility_of_element_located((By.XPATH, "//p[contains(.,'Agree')]")))
             print(f"{mensaje_hora} El Error no está presente en la página por tanto todo  esta bien")   
             #wait.until(EC.presence_of_element_located((By.XPATH, "//div[@id='root']/div/div[2]/div/div/div[3]/button/span")))
-            browser.find_element(By.XPATH, "//p[contains(.,'Agree')]").click()   # Autorizar la cta
-            # Esperar un tiempo adicional para que la página se cargue completamente
+            browser.find_element(By.XPATH, "//p[contains(.,'Agree')]").click()
 
         except:
             time.sleep(15.1)
@@ -110,7 +85,7 @@ def iniciar_sesion_get_stats(url, username, password):
     print(f"{mensaje_hora} La página web se ha guardado como {filename} en el directorio {DIRECTORY}")    
 
     directorio_actual = os.path.dirname(os.path.abspath(__file__))
-    archivo_configuracion = os.path.join(directorio_actual, "playlists", normalized_playlistname + ".ini")
+    archivo_configuracion = os.path.join(directorio_actual, "playlists", playlist_id + ".ini")
 
     config = configparser.ConfigParser()
     config.read(archivo_configuracion)
@@ -122,22 +97,16 @@ def iniciar_sesion_get_stats(url, username, password):
     playlist_cover_image = config.get('Playlist', 'imagen_portada')
     caption_mensaje = (f'{playlist_name}\nDuración:{playlist_duration_minutes}\nURL:\n{playlist_url}\nPortada:\n{playlist_cover_image}')
     loop = asyncio.get_event_loop()
-    #   Enviando Mensaje con datos de la playlist
-    #loop.run_until_complete(enviar_archivo_telegram(token, chat_ids, mensaje=caption_mensaje))
-    #   Enviando Foto adjunta con caption mensaje
-    loop.run_until_complete(enviar_archivo_telegram(token, chat_ids, archivo=nombre_archivo, caption=caption_mensaje))
-    #   Enviando Archivo que contiene tracks y la informaciond e la lista
-    # loop.run_until_complete(enviar_archivo_telegram(token, chat_ids, archivo=archivo_configuracion, caption=caption_mensaje))
+    loop.run_until_complete(enviar_archivo_telegram(bot_token, bot_chat_ids, archivo=nombre_archivo, caption=caption_mensaje))
+
 
 def main():
     import subprocess
 
     url = "https://www.statsforspotify.com/track/recent"
-    # Llamar a la función para iniciar sesión
     iniciar_sesion_get_stats(url, your_username, your_password)
     time.sleep(10)
     os.remove(nombre_archivo)
     subprocess.run(['vpn-con-rand'])    
-# Llamar a la función main
 if __name__ == "__main__":
     main()

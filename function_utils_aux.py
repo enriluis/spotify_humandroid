@@ -177,17 +177,21 @@ def read_config():
     # Read 'Credentials'
     your_username = config.get('Credentials', 'Username')
     your_password = config.get('Credentials', 'Password')
-    fecha_creacion = config.get('Credentials', 'fecha_creacion')    
+    creation_date = config.get('Credentials', 'creation_date')
     # Read 'Play_Lists'
     playlist_id = config.get('Play_Lists', 'playlist_id')
-    nombre_playlist = config.get('Play_Lists', 'nombre_playlist')
-    playlist_duration = config.get('Play_Lists', 'duracion')
-    virtual_machine = config.get('Play_Lists', 'virtual_machine')    
-    return your_username, your_password,fecha_creacion, playlist_id, nombre_playlist, playlist_duration,virtual_machine
+    virtual_machine = config.get('Play_Lists', 'virtual_machine')
+    # 
+    bot_token = config.get('telegram_bot', 'token')
+    bot_chat_ids = config.get('telegram_bot', 'chat_ids')
+    #
+    spotify_client_id = config.get('spotify_credentials', 'client_id')
+    spotify_client_secret = config.get('spotify_credentials', 'client_secret')        
+    return your_username, your_password,creation_date,playlist_id,virtual_machine,bot_token,bot_chat_ids, spotify_client_id, spotify_client_secret
 
 # Leer todas las configuraciones
 # para leer independiente: ejemplo duration = read_config()[4]
-your_username, your_password, fecha_creacion, playlist_id, nombre_playlist, playlist_duration,virtual_machine = read_config()
+your_username, your_password,creation_date,playlist_id,virtual_machine,bot_token,bot_chat_ids, spotify_client_id, spotify_client_secret = read_config()
 
 
 # Obtener la ruta absoluta del directorio del script

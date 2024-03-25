@@ -15,18 +15,18 @@ script_directory = os.path.dirname(os.path.abspath(__file__))
 
 def obtener_cancion_actual():
     obtener_hora_actual()
-    global titulo, artista, album_artista, album  # Indicar que estamos utilizando las variables globales
+    global titulo, artista, album_artista, album 
     result = subprocess.run(['sp', 'current'], capture_output=True, text=True)
     output = result.stdout.strip()    
-    lines = output.split('\n')  # Dividir las líneas del resultado en una lista de líneas
-    song_info = {}              # Crear un diccionario para almacenar los valores
-    for line in lines:          # Iterar a través de las líneas y extraer los datos
+    lines = output.split('\n')
+    song_info = {}
+    for line in lines:   
         if line:
             key_value = line.split(maxsplit=1)
             if len(key_value) == 2:
                 key, value = key_value
                 song_info[key] = value
-    titulo = song_info.get('Title', '')    # Asignar los valores globales
+    titulo = song_info.get('Title', '')
     artista = song_info.get('Artist', '')
     album_artista = song_info.get('AlbumArtist', '')
     album = song_info.get('Album', '')
@@ -44,17 +44,13 @@ def verificar_y_abrir_spotify():
         print(f"{mensaje_hora} Spotify ya esta ejecutandose...")
 
 
-# Verificar si Spotify está en ejecución
 def verificar_spotify():
     try:
-        # Verificar si Spotify está en ejecución
         subprocess.check_output(['pidof', 'spotify'])
         return True
     except subprocess.CalledProcessError:
         return False
 
-
-#   Reiniciar Spotify
 def reset_spotify_app():
     subprocess.run(['pkill', 'spotify'])
     time.sleep(1)
@@ -75,8 +71,8 @@ def load_time_range():
     return favorite_start_time, favorite_end_time, second_cycle_start_time, second_cycle_end_time, break_start_time, break_end_time
 
 favorite_start_time, favorite_end_time, second_cycle_start_time, second_cycle_end_time, break_start_time, break_end_time = load_time_range()
-your_username, your_password, fecha_creacion,playlist_id, nombre_playlist, playlist_duration,virtual_machine = read_config()
-is_playing = False  # Declaración de la variable global
+your_username, your_password,creation_date, playlist_id,virtual_machine = read_config()
+is_playing = False
 
 def is_break_time(break_start_time, break_end_time):
     obtener_hora_actual()
@@ -118,21 +114,18 @@ def playlist_random():
         current_time = datetime.datetime.now().time()
         if is_playing:
             print(f"{mensaje_hora} \u266Aplay_playlists_continuosly: \u25B6 Ya esta reproduciendose \u266A Continuando la reproducción de la lista de reproducción favorita\u266A.")
-            time.sleep(300)  # Esperar 5 minuto antes de realizar el siguiente chequeo
+            time.sleep(300)
             continue
         if (break_start_time <= current_time <= break_end_time) \
             or (break_start_time > break_end_time and (current_time >= break_start_time or current_time <= break_end_time)):
-            # El bloque de código correspondiente al tiempo de descanso
             print(f"{mensaje_hora} Break time. Stopping \u23F9 Random Playlist\u266A.")
             subprocess.run(['sp', 'stop'])
             break
         elif favorite_start_time <= current_time <= favorite_end_time:
-            # El bloque de código correspondiente al horario favorito
             print(f"{mensaje_hora} Favorite first time. Stopping \u23F9 Random Playlist\u266A.")
             subprocess.run(['sp', 'stop'])
             break
         elif second_cycle_start_time <= current_time <= second_cycle_end_time:
-            # El bloque de código correspondiente al segundo ciclo
             print(f"{mensaje_hora} Second cicle Favorite pl. time Stopping \u23F9 Random Playlist\u266A.")
             subprocess.run(['sp', 'stop'])
             break
@@ -152,78 +145,77 @@ from playlist_info import obtener_info_playlist_from_spotify
 
 archivo_configuracion = os.path.join(script_directory, "playlists", playlist_id + ".ini")
 config = configparser.ConfigParser().read(archivo_configuracion)
-playlist_duration = int(config.get('Playlist', 'duracion'))
-
+playlist_duration = int(config.get('Playlist', 'duration'))
+playlist_name = config.get('Playlist', 'playlist_name')
 
 def playlist_favorite():
     obtener_info_playlist_from_spotify(playlist_id)
     global is_playing   
     mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
     current_time = datetime.datetime.now().time()
-    plus_time = random.randint(3, 15)  # Tiempo adicional en minutos que se sumará a la duración
-    random_wait_time = random.randint(5, 20)  # Tiempo de espera aleatorio en minutos antes de comenzar la reproducción
-    start_time = datetime.datetime.now() + datetime.timedelta(minutes=random_wait_time)  # Obtener el tiempo actual y agregar el tiempo de espera
-    end_time = start_time + datetime.timedelta(minutes=int(playlist_duration) + plus_time)  # Calcular el tiempo de finalización sumando la duración total y el tiempo adicional
+    plus_time = random.randint(3, 15) 
+    random_wait_time = random.randint(5, 20)
+    start_time = datetime.datetime.now() + datetime.timedelta(minutes=random_wait_time)
+    end_time = start_time + datetime.timedelta(minutes=int(playlist_duration) + plus_time)
     subprocess.run(['sp', 'stop'])
-    print(f"{mensaje_hora} Playing: {nombre_playlist} en {random_wait_time} segundos...")
-    time.sleep(random_wait_time)  # Convertir el tiempo de espera a segundos
+    print(f"{mensaje_hora} Playing: {playlist_name} en {random_wait_time} segundos...")
+    time.sleep(random_wait_time)
     
     if check_time_conditions():
         contador_reproducciones = 0
-        is_playing = True  # Establecer la variable de estado a True
+        is_playing = True 
         subprocess.run(['sp', 'open', f'spotify:playlist:{playlist_id}'])
-        print(f"{mensaje_hora} Playing Main Playlist: {nombre_playlist} Duration {float(playlist_duration) + plus_time} Minutos, iniciando a las {start_time} y se detendrá a las {end_time} ")
+        print(f"{mensaje_hora} Playing Main Playlist: {playlist_name} Duration {float(playlist_duration) + plus_time} Minutos, iniciando a las {start_time} y se detendrá a las {end_time} ")
         
         while True:
             mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
-            current_time = datetime.datetime.now()  # Actualizar el tiempo actual utilizando datetime.now()
+            current_time = datetime.datetime.now()
             
             if is_playing and current_time.time() < end_time.time():
-                print(f"{mensaje_hora} La lista de reproducción {nombre_playlist} todavía está en reproducción. Terminará {end_time} Esperando...")
-                time.sleep(900)  # Esperar 5 minuto antes de verificar nuevamente # poner 300, 5 minutos
-                continue  # Volver al inicio del bucle sin ejecutar más código
+                print(f"{mensaje_hora} La lista de reproducción {playlist_name} todavía está en reproducción. Terminará {end_time} Esperando...")
+                time.sleep(900)
+                continue
             
             if current_time.time() >= end_time.time():
-                print(f"{mensaje_hora} Stopping Main Playlist: {nombre_playlist} pasado {float(playlist_duration) + plus_time} Minutos end_time={end_time}")
-                is_playing = False  # Establecer la variable de estado a False ya que se detendra la funcion
+                print(f"{mensaje_hora} Stopping Main Playlist: {playlist_name} pasado {float(playlist_duration) + plus_time} Minutos end_time={end_time}")
+                is_playing = False 
                 subprocess.run(['sp', 'stop'])
-                print(f"{mensaje_hora} Ejecutando estadísticas para la playlist {nombre_playlist}...")
+                print(f"{mensaje_hora} Ejecutando estadísticas para la playlist {playlist_name}...")
                 estadisticas_script = os.path.join(script_directory, 'estadisticas.py')
-                subprocess.run(['python3', estadisticas_script, playlist_id, str(nombre_playlist), str(playlist_duration)])
+                subprocess.run(['python3', estadisticas_script, playlist_id, str(playlist_name), str(playlist_duration)])
                 
-                time.sleep(300)    # ciclo que comprueba a duracion de la reproduccion de favorite playlist
+                time.sleep(300)
                 contador_reproducciones += 1
                 
-                if contador_reproducciones >= 2:  # Verificar si la playlist ya se reprodujo más de una vez
-                    print(f"{mensaje_hora} Playlist {nombre_playlist} already played. Stoping and aborting .")
+                if contador_reproducciones >= 2:
+                    print(f"{mensaje_hora} Playlist {playlist_name} already played. Stoping and aborting .")
                     subprocess.run(['sp', 'stop'])
                     is_playing = False
-                    return  # Abortar la función sin continuar con el ciclo
+                    return
                 break 
     else:
         print(f"{mensaje_hora} Hora de descansar...")
-        is_playing = False  # Establecer la variable de estado a False
+        is_playing = False 
         subprocess.run(['sp', 'stop'])
-        
-  
+
+
 def play_playlists_continuosly():
     while True:
         mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
         current_time = datetime.datetime.now().time()
         if is_playing:
             print(f"{mensaje_hora} play_playlists_continuosly: Ya esta reproduciendose.{current_time} Continuando la reproducción de la lista de reproducción favorita.")
-            time.sleep(300)  # Esperar 1 minuto antes de realizar el siguiente chequeo
-            continue  # Saltar a la siguiente iteración del bucle sin ejecutar más código
+            time.sleep(300) 
+            continue
 
         if check_time_conditions():
-            print(f"{mensaje_hora} play_playlists_continuosly: Reproducirá Favorite {nombre_playlist} .")
+            print(f"{mensaje_hora} play_playlists_continuosly: Reproducirá Favorite {playlist_name} .")
             playlist_favorite()
         else:
             print(f"{mensaje_hora} play_playlists_continuosly: Reproducirá Random.")
             playlist_random()
-        time.sleep(900)  # Esperar 15 minutos antes de realizar el siguiente chequeo
+        time.sleep(900)
 
-        
 
 def verificar_playing(max_reinicios):
     while True:
@@ -232,16 +224,13 @@ def verificar_playing(max_reinicios):
             obtener_hora_actual()
             mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
             cancion_actual = obtener_cancion_actual()
-            # Verificar si es tiempo de descanso y continuar con el próximo ciclo
             current_time = datetime.datetime.now().time()
             if (break_start_time <= current_time <= break_end_time) \
                 or (break_start_time > break_end_time and (current_time >= break_start_time or current_time <= break_end_time)):
-                # El bloque de código correspondiente al tiempo de descanso
                 print(f"{mensaje_hora} Tiempo de descanso. Nada que verificar")
                 continue
-            #time.sleep(60)  # Esperar 1 minuto
             if cancion_actual == cancion_anterior:
-                if time.time() - tiempo_inicial >= 300:  # Si pasan mas de 5 minutos
+                if time.time() - tiempo_inicial >= 300: 
                     contador_reinicios += 1
                     print(f"{mensaje_hora} La canción \u266A{titulo}\u266A no ha cambiado pasado 5 minutos...")
                     
@@ -257,20 +246,20 @@ def verificar_conexion():
     while True:
         obtener_hora_actual()
         mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
-        time.sleep(900)  # Esperar 15 minutos
+        time.sleep(900) 
         if not requests.get('https://www.google.com', timeout=5).status_code == 200:
             print(f"{mensaje_hora} La conexión a internet ha fallado. Ejecutando comando...")        
-            #connect_vpn_randomly()    # Ejecutar el comando que deseas al fallar la conexión
+            #connect_vpn_randomly() 
             return False
         else:
             print(f"{mensaje_hora} La conexion Esta OK")
             return True
 
-fecha_creacion_str = fecha_creacion
+fecha_creacion_str = creation_date
 def calcular_edad_cuenta():
-    fecha_creacion = datetime.datetime.strptime(fecha_creacion_str, "%Y-%m-%d %H:%M:%S.%f")
-    fecha_actual = datetime.datetime.now()
-    diferencia = fecha_actual - fecha_creacion
+    creation_date = datetime.datetime.strptime(fecha_creacion_str, "%Y-%m-%d %H:%M:%S.%f")
+    today_date = datetime.datetime.now()
+    diferencia = today_date - creation_date
     edad_dias = diferencia.days
     edad_horas = diferencia.seconds // 3600
     return edad_dias, edad_horas
@@ -284,40 +273,35 @@ def verificacion_edad_cuenta():
         edad_dias, edad_horas = calcular_edad_cuenta()
         print(f"{mensaje_hora} Edad de la cuenta {your_username}: {edad_dias} días y {edad_horas} horas")
         
-        # Realizar la acción cuando la cuenta tenga 6 días y 12 horas de edad
         if edad_dias == 6 and edad_horas == 12:
-            # Código para ejecutar la acción deseada
             print(f"{mensaje_hora} La cuenta tiene 6 días y 12 horas de edad. se crera una nueva cuenta...")
 
-        # Esperar 12 horas antes de la próxima verificación
         time.sleep(12 * 60 * 60)    # 12horas=12 * 60 * 60
 
-# Obtener la ruta absoluta del directorio del script
 script_directory = os.path.dirname(os.path.abspath(__file__))
 import pyautogui
 def buscar_imagen_en_pantalla(image_path, num_intentos=15, timeout=30, **kwargs):
     mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
     start_time = time.time()
-    ruta_completa = os.path.join(script_directory, 'images', image_path)  # Ruta completa de la imagen
+    ruta_completa = os.path.join(script_directory, 'images', image_path) 
     for i in range(num_intentos):
         match = pyautogui.locateOnScreen(ruta_completa, **kwargs)
         if match:
-            # La imagen se encontró, hacer clic en ella
+
             image_location = pyautogui.center(match)
             #pyautogui.click(image_location)
             print(f"{mensaje_hora} Encontrada la imagen {image_path} en captura {i+1} de {num_intentos}, haciendo clic...")
             return True, image_location
         elapsed_time = time.time() - start_time
         if elapsed_time > timeout:
-            # Se agotó el tiempo de espera para encontrar la imagen
             return False, None
         time.sleep(1)
-    # No se encontró la imagen después de los intentos
     print(f"{mensaje_hora} No encontró imagen {image_path} ...")
-    return False, None 
+    return False, None
+
 from function_utils_aux import maximizar_spotify  
 from telegram_aux import enviar_archivo_telegram 
-import asyncio    
+import asyncio
 
 def taket_screenshot_send_telegram():
     loop = asyncio.get_event_loop()
@@ -326,8 +310,7 @@ def taket_screenshot_send_telegram():
     screenshot = pyautogui.screenshot()
     now = datetime.datetime.now() 
     timestamp = now.strftime("%d-%m-%Y_%H-%M")
-    normalized_filename = re.sub(r'[^\w\-_.]', '', nombre_playlist)
-    screenshot_image = "{}_{}.png".format(normalized_filename, timestamp)
+    screenshot_image = "{}_{}.png".format(playlist_id, timestamp)
     screenshot.save(screenshot_image)
     print(f"{mensaje_hora} salvando captura...")
     #loop.run_until_complete(enviar_archivo_telegram(token, chat_ids, mensaje=caption_mensaje))
@@ -336,7 +319,6 @@ def taket_screenshot_send_telegram():
     caption_mensaje = (f'Captura de pantalla Spotify')
     loop.run_until_complete(enviar_archivo_telegram(token, chat_ids, archivo=screenshot_image, caption=caption_mensaje))
     print(f"{mensaje_hora} Enviando captura...")
-    # Eliminar el archivo de imagen después de enviarlo
     time.sleep(8.1)
     os.remove(screenshot_image)   
 
@@ -354,26 +336,22 @@ def verify_session_spotify():
             print(f"{mensaje_hora} No se encontró la imagen, parece que spotify no esta corriendo o la sesion no esta abierta")
             taket_screenshot_send_telegram()
             print(f"{mensaje_hora} Se creará una nueva cuenta...")
-            #register_spotify_account()
 
 
 def main():
     verificar_y_abrir_spotify()
-    # Crear hilos para ejecutar las tareas
     hilo_playlist = threading.Thread(target=play_playlists_continuosly)
     hilo_verificar_playing = threading.Thread(target=verificar_playing, args=(4,))
     hilo_verificar_conexion = threading.Thread(target=verificar_conexion)
     hilo_edad_cuenta = threading.Thread(target=verificacion_edad_cuenta)
     hilo_spotify_playing = threading.Thread(target=verify_session_spotify)
 
-    # Iniciar los hilos
     hilo_playlist.start()
     hilo_verificar_playing.start()
     hilo_verificar_conexion.start()
     hilo_edad_cuenta.start()
     hilo_spotify_playing.start()
 
-    # Esperar a que los hilos terminen (esto no sucederá porque las tareas se ejecutan en bucles infinitos)
     hilo_playlist.join()
     hilo_verificar_playing.join()
     hilo_verificar_conexion.join()
