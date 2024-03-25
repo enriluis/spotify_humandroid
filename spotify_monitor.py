@@ -61,7 +61,7 @@ def parse_time(time_str):
 
 def load_time_range():
     config = configparser.ConfigParser()
-    config.read(os.path.join(os.path.dirname(__file__), "account.txt"))    
+    config.read(os.path.join(os.path.dirname(__file__), "account.ini"))    
     favorite_start_time = parse_time(config["favorite_times"]["favorite_start_time"])
     favorite_end_time = parse_time(config["favorite_times"]["favorite_end_time"])
     second_cycle_start_time = parse_time(config["second_cycle_times"]["second_cycle_start_time"])
