@@ -15,6 +15,7 @@ if len(sys.argv) == 4:
     playlist_duration = str(sys.argv[3])
 else:
     your_username, your_password,creation_date,playlist_id,virtual_machine,bot_token,bot_chat_ids, spotify_client_id, spotify_client_secret = read_config()
+    bot_chat_ids = bot_chat_ids.split(',')  # split string to read multiples vaues separated by ,
 
 mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
 DIRECTORY = os.path.join(os.path.dirname(__file__), "Stats")
@@ -89,7 +90,6 @@ def iniciar_sesion_get_stats(url, username, password):
 
     config = configparser.ConfigParser()
     config.read(archivo_configuracion)
-    print(f'{mensaje_hora} Directorio: {archivo_configuracion}')
     # Leer los campos de la sección 'Playlist'
     playlist_name = config.get('Playlist', 'nombre')
     playlist_duration_minutes = int(config.get('Playlist', 'duracion'))
@@ -106,7 +106,7 @@ def main():
     url = "https://www.statsforspotify.com/track/recent"
     iniciar_sesion_get_stats(url, your_username, your_password)
     time.sleep(10)
-    os.remove(nombre_archivo)
-    subprocess.run(['vpn-con-rand'])    
+    #os.remove(nombre_archivo)
+
 if __name__ == "__main__":
     main()

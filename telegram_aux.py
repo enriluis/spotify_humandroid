@@ -1,14 +1,13 @@
 from colorama import Fore, Style
 from function_utils_aux import obtener_hora_actual
 from colorama import Fore, Style
-import asyncio,os,configparser,random, time, datetime,asyncio,logging
 from telegram import Bot
-
 
 async def enviar_archivo_telegram(token, chat_ids, archivo=None, caption=None, mensaje=None, max_retries=3):
     mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
     bot = Bot(token=token)
     for chat_id in chat_ids:
+        chat_id = chat_id.strip() 
         retries = 0
         while retries < max_retries:
             try:
@@ -19,7 +18,7 @@ async def enviar_archivo_telegram(token, chat_ids, archivo=None, caption=None, m
                     print(f"{mensaje_hora} Error en el envío del archivo a {chat_id}")
                 elif mensaje:
                     await bot.send_message(chat_id=chat_id, text=mensaje)
-                break  # Envío exitoso, salir del bucle de reintentos
+                break  
             except Exception as e:
                 print(f"{mensaje_hora} Error en el envío del archivo a {chat_id}: {e}")
                 retries += 1
