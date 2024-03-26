@@ -1,5 +1,5 @@
 from colorama import Fore, Style
-from function_utils_aux import obtener_hora_actual,read_config
+from function_utils_aux import obtener_hora_actual,obtener_ids_playlist
 import spotipy,sys,time,os
 from spotipy.oauth2 import SpotifyClientCredentials
 import configparser
@@ -10,7 +10,7 @@ mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
 if len(sys.argv) == 2:
     playlist_id = sys.argv[1]
 else:
-    your_username, your_password,creation_date,playlist_id,virtual_machine,bot_token,bot_chat_ids, client_id, client_secret = read_config()
+    playlist_id = obtener_ids_playlist()
 
 def obtener_info_playlist_from_spotify(playlist_id):
     config = configparser.ConfigParser()
@@ -74,5 +74,6 @@ def obtener_info_playlist_from_spotify(playlist_id):
         print("Se produjo un error de conexión. Se mostrará una advertencia y se continuará sin hacer cambios.")
         time.sleep(5)
         return None
-
-obtener_info_playlist_from_spotify(playlist_id)
+    
+for playlist_id in obtener_ids_playlist():
+    obtener_info_playlist_from_spotify(playlist_id)
