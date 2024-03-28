@@ -149,51 +149,53 @@ archivo_configuracion = os.path.join(script_directory, "playlists", playlist_id 
 config = configparser.ConfigParser().read(archivo_configuracion)
 playlist_duration = int(config.get('Playlist', 'duration'))
 playlist_name = config.get('Playlist', 'playlist_name')
+playlist_ids = obtener_ids_playlist()
 
 def playlist_favorite(playlist_id):
-    obtener_info_playlist_from_spotify(playlist_id)
-    global is_playing   
-    mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
-    current_time = datetime.datetime.now().time()
-    plus_time = random.randint(3, 15) 
-    random_wait_time = random.randint(5, 20)
-    start_time = datetime.datetime.now() + datetime.timedelta(minutes=random_wait_time)
-    end_time = start_time + datetime.timedelta(minutes=int(playlist_duration) + plus_time)
-    subprocess.run(['sp', 'stop'])
-    print(f"{mensaje_hora} Playing: {playlist_name} en {random_wait_time} segundos...")
-    time.sleep(random_wait_time)
-    
-    contador_reproducciones = 0
-    is_playing = True 
-    subprocess.run(['sp', 'open', f'spotify:playlist:{playlist_id}'])
-    print(f"{mensaje_hora} Playing Main Playlist: {playlist_name} Duration {float(playlist_duration) + plus_time} Minutes, starting at {start_time} will stop on {end_time} ")
-        
-    while True:
+    for playlist_id in playlist_ids:
+        obtener_info_playlist_from_spotify(playlist_id)
+        global is_playing   
         mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
-        current_time = datetime.datetime.now()
+        current_time = datetime.datetime.now().time()
+        plus_time = random.randint(3, 15) 
+        random_wait_time = random.randint(5, 20)
+        start_time = datetime.datetime.now() + datetime.timedelta(minutes=random_wait_time)
+        end_time = start_time + datetime.timedelta(minutes=int(playlist_duration) + plus_time)
+        subprocess.run(['sp', 'stop'])
+        print(f"{mensaje_hora} Playing: {playlist_name} en {random_wait_time} segundos...")
+        time.sleep(random_wait_time)
+        
+        contador_reproducciones = 0
+        is_playing = True 
+        subprocess.run(['sp', 'open', f'spotify:playlist:{playlist_id}'])
+        print(f"{mensaje_hora} Playing Main Playlist: {playlist_name} Duration {float(playlist_duration) + plus_time} Minutes, starting at {start_time} will stop on {end_time} ")
             
-        if is_playing and current_time.time() < end_time.time():
-            print(f"{mensaje_hora} the playlyist {playlist_name} stil playing. Will end at {end_time} waiting and playin relax...")
-            time.sleep(900)
-            continue
-            
-        if current_time.time() >= end_time.time():
-            print(f"{mensaje_hora} Stopping Main Playlist: {playlist_name} elapsed time {float(playlist_duration) + plus_time} Minutos end_time={end_time}")
-            is_playing = False 
-            subprocess.run(['sp', 'stop'])
-            print(f"{mensaje_hora} Running and sending stats report {playlist_name}...")
-            estadisticas_script = os.path.join(script_directory, 'estadisticas.py')
-            subprocess.run(['python3', estadisticas_script, playlist_id, str(playlist_name), str(playlist_duration)])
+        while True:
+            mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
+            current_time = datetime.datetime.now()
                 
-            time.sleep(300)
-            contador_reproducciones += 1
+            if is_playing and current_time.time() < end_time.time():
+                print(f"{mensaje_hora} the playlyist {playlist_name} stil playing. Will end at {end_time} waiting and playin relax...")
+                time.sleep(900)
+                continue
                 
-            if contador_reproducciones >= 2:
-                print(f"{mensaje_hora} Playlist {playlist_name} already played. Stoping and aborting .")
+            if current_time.time() >= end_time.time():
+                print(f"{mensaje_hora} Stopping Main Playlist: {playlist_name} elapsed time {float(playlist_duration) + plus_time} Minutos end_time={end_time}")
+                is_playing = False 
                 subprocess.run(['sp', 'stop'])
-                is_playing = False
-                return
-            break 
+                print(f"{mensaje_hora} Running and sending stats report {playlist_name}...")
+                estadisticas_script = os.path.join(script_directory, 'estadisticas.py')
+                subprocess.run(['python3', estadisticas_script, playlist_id, str(playlist_name), str(playlist_duration)])
+                    
+                time.sleep(300)
+                contador_reproducciones += 1
+                    
+                if contador_reproducciones >= 2:
+                    print(f"{mensaje_hora} Playlist {playlist_name} already played. Stoping and aborting .")
+                    subprocess.run(['sp', 'stop'])
+                    is_playing = False
+                    return
+                break 
         
 
 def play_playlists_continuosly():
