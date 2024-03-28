@@ -71,7 +71,8 @@ def load_time_range():
     return favorite_start_time, favorite_end_time, second_cycle_start_time, second_cycle_end_time, break_start_time, break_end_time
 
 favorite_start_time, favorite_end_time, second_cycle_start_time, second_cycle_end_time, break_start_time, break_end_time = load_time_range()
-your_username, your_password,creation_date,playlist_id,virtual_machine,bot_token,bot_chat_ids, client_id, client_secret = read_config()
+your_username, your_password,creation_date,virtual_machine,bot_token,bot_chat_ids, client_id, client_secret = read_config()
+
 is_playing = False
 
 def is_break_time(break_start_time, break_end_time):
@@ -148,7 +149,7 @@ config = configparser.ConfigParser().read(archivo_configuracion)
 playlist_duration = int(config.get('Playlist', 'duration'))
 playlist_name = config.get('Playlist', 'playlist_name')
 
-def playlist_favorite():
+def playlist_favorite(playlist_id):
     obtener_info_playlist_from_spotify(playlist_id)
     global is_playing   
     mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"

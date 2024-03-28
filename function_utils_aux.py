@@ -191,14 +191,14 @@ def read_config():
 def obtener_ids_playlist():
     config = configparser.ConfigParser()
     config.read(os.path.join(os.path.dirname(__file__), "account.ini")) 
-    playlist_ids = config.get("Playlists", "playlist_id")
+    playlist_ids = config.get("Play_Lists", "spotify_playlist_ids")
     playlist_id = [id.strip() for id in playlist_ids.split(",")]
     return playlist_id
 
 # Leer todas las configuraciones
 # para leer independiente: ejemplo duration = read_config()[4]
 your_username, your_password,creation_date,virtual_machine,bot_token,bot_chat_ids, client_id, client_secret = read_config()
-
+playlist_id = obtener_ids_playlist()
 
 # Obtener la ruta absoluta del directorio del script
 script_directory = os.path.dirname(os.path.abspath(__file__))
