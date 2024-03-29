@@ -62,7 +62,7 @@ def obtener_info_playlist_from_spotify(playlist_id):
         config_file_path = os.path.join(os.path.dirname(__file__), "playlists", playlist_id + ".ini")
         with open(config_file_path, 'w') as configfile:
             config.write(configfile)
-        print(f"{mensaje_hora} updated playlist {Fore.YELLOW}{playlist_name}{Style.RESET_ALL} info from spotify api in to {Fore.RED}{config_file_path}{Style.RESET_ALL}")
+        print(f"{mensaje_hora} updated playlist {Fore.YELLOW}{playlist_name}{Style.RESET_ALL} info from spotify API in to {Fore.RED}{config_file_path}{Style.RESET_ALL}")
         return {
             'nombre': playlist_name,
             'duracion': playlist_duration_minutes,

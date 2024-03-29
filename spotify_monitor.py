@@ -145,7 +145,7 @@ def playlist_random():
 
 from playlist_info import obtener_info_playlist_from_spotify
 
-archivo_configuracion = os.path.join(script_directory, "playlists", playlist_id + ".ini")
+archivo_configuracion = os.path.join(script_directory, "playlists", f"{playlist_id}.ini")
 config = configparser.ConfigParser().read(archivo_configuracion)
 playlist_duration = int(config.get('Playlist', 'duration'))
 playlist_name = config.get('Playlist', 'playlist_name')
@@ -175,7 +175,7 @@ def playlist_favorite(playlist_id):
             current_time = datetime.datetime.now()
                 
             if is_playing and current_time.time() < end_time.time():
-                print(f"{mensaje_hora} the playlyist {playlist_name} stil playing. Will end at {end_time} waiting and playin relax...")
+                print(f"{mensaje_hora} the playlyist {playlist_name} stil playing. Will end at {end_time} waiting and playin, relax...")
                 time.sleep(900)
                 continue
                 
