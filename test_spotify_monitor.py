@@ -94,7 +94,7 @@ def obtener_ids_playlist():
     playlist_ids = [id.strip() for id in playlist_ids.replace(" ", "").split(",")]
 
     if len(playlist_ids) > 4:
-        print(f"{mensaje_hora} Warning: There are more than 4 playlist_id values. The other values will be ignored.")
+        print(f"{mensaje_hora} Warning: There are more than 4 playlist_id values. The other values will be ignored!!")
 
     valid_playlist_ids = []
     for playlist_id in playlist_ids:
@@ -113,12 +113,12 @@ for playlist_id in playlist_ids:
     config_file = os.path.join(script_directory, "playlists", f"{playlist_id}.ini")
     config = configparser.ConfigParser()
     config.read(config_file)
-    playlist_duration = int(config.get('Playlist', 'duracion'))
-    playlist_name = config.get('Playlist', 'nombre')
+    playlist_duration = int(config.get('Playlist', 'duration'))
+    playlist_name = config.get('Playlist', 'name')
     print(f"{mensaje_hora} {config_file}")
-    print(f"{mensaje_hora} ID de la lista de reproducción: {playlist_id}")
-    print(f"{mensaje_hora} Nombre: {playlist_name}")
-    print(f"{mensaje_hora} Duración: {playlist_duration}")
+    print(f"{mensaje_hora} Playlist ID: {playlist_id}")
+    print(f"{mensaje_hora} Name: {playlist_name}")
+    print(f"{mensaje_hora} Duration: {playlist_duration}")
     print(f"{mensaje_hora} ---")
     
 def playlist_favorite(playlist_id):
@@ -158,7 +158,7 @@ def playlist_favorite(playlist_id):
             print(f"{mensaje_hora} Stopping Main Playlist: {playlist_name} elapsed time {float(playlist_duration) + plus_time} Minutos end_time={end_time}")
             is_playing = False 
             stop_play_spotify()
-            print(f"{mensaje_hora} Sending stats report for playlist:{playlist_name}...")
+            print(f"{mensaje_hora} Sending stats report for playlist: {playlist_name}...")
             time.sleep(5) # 300
             contador_reproducciones += 1
                     

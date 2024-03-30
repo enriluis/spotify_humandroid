@@ -192,8 +192,21 @@ def obtener_ids_playlist():
     config = configparser.ConfigParser()
     config.read(os.path.join(os.path.dirname(__file__), "account.ini")) 
     playlist_ids = config.get("Play_Lists", "spotify_playlist_ids")
-    playlist_id = [id.strip() for id in playlist_ids.split(",")]
-    return playlist_id
+    playlist_ids = [id.strip() for id in playlist_ids.replace(" ", "").split(",")]
+
+    if len(playlist_ids) > 4:
+        print(f"{mensaje_hora} Warning: There are more than 4 playlist_id values. The other values will be ignored!!")
+
+    valid_playlist_ids = []
+    for playlist_id in playlist_ids:
+        if len(playlist_id) == 22 and playlist_id.isalnum():
+            valid_playlist_ids.append(playlist_id)
+        else:
+            print(f"{mensaje_hora} Warning: The playlist_id '{playlist_id}' does not meet the required length of 22 characters. It has {len(playlist_id)} characters.")
+
+    playlist_ids = valid_playlist_ids[:4]
+
+    return playlist_ids
 
 # Leer todas las configuraciones
 # para leer independiente: ejemplo duration = read_config()[4]
