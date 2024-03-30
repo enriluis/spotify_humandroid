@@ -59,17 +59,25 @@ def reset_spotify_app():
 def parse_time(time_str):
     return datetime.datetime.strptime(time_str, "%H:%M").time()
 
-def load_time_range():
+def load_scheduled_hours_day():
     config = configparser.ConfigParser()
     config.read(os.path.join(os.path.dirname(__file__), "account.ini"))    
-    favorite_start_time = parse_time(config["favorite_times"]["favorite_start_time"])
-    favorite_end_time = parse_time(config["favorite_times"]["favorite_end_time"])
-    second_cycle_start_time = parse_time(config["second_cycle_times"]["second_cycle_start_time"])
-    second_cycle_end_time = parse_time(config["second_cycle_times"]["second_cycle_end_time"])
-  
-    return favorite_start_time, favorite_end_time, second_cycle_start_time, second_cycle_end_time
+    scheduled_hours_day = config["scheduled_time"]["scheduled_hours"].replace(" ", "").split(",")
 
-favorite_start_time, favorite_end_time, second_cycle_start_time, second_cycle_end_time = load_time_range()
+    formatted_hours_day = []
+    for hour in scheduled_hours_day:
+        hour_parts = hour.split(":")
+        formatted_hour = f"{hour_parts[0].zfill(2)}:{hour_parts[1].zfill(2)}:00"
+        formatted_hours_day.append(formatted_hour)
+
+    if len(formatted_hours_day) > 4:
+        print(f"{mensaje_hora} Warning there is more than 4 values of time to schedule, will be ignored the other values")
+        
+    scheduled_hours_day = formatted_hours_day[:4]  # Limitar a 4 valores
+
+    return scheduled_hours_day
+
+scheduled_hours_day = load_scheduled_hours_day()
 your_username, your_password,creation_date,virtual_machine,bot_token,bot_chat_ids, client_id, client_secret = read_config()
 
 
@@ -80,24 +88,24 @@ def stop_play_spotify():
     print(f"{mensaje_hora} Stop Music!")
 
 
-def check_time_conditions():
-    mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
-    current_datetime = datetime.datetime.now()
-    current_time = current_datetime.time()
-    if (favorite_start_time <= current_time <= favorite_end_time) or \
-        (second_cycle_start_time <= current_time <= second_cycle_end_time): 
-        print(f"{mensaje_hora} Check Time conditions: Favorite Playlist time  to play: {Fore.LIGHTGREEN_EX}{favorite_start_time} \u25B6 {favorite_end_time}{Style.RESET_ALL} y {Fore.LIGHTGREEN_EX}{second_cycle_start_time} \u25B6 {second_cycle_end_time}{Style.RESET_ALL} ")
-        return True
-    else:
-        print(f"{mensaje_hora} Check Time conditions: No Favorite  Playlist time {favorite_start_time} <= {current_time} <= {second_cycle_end_time} ")
-        return False
-
-
 def obtener_ids_playlist():
     config = configparser.ConfigParser()
     config.read(os.path.join(os.path.dirname(__file__), "account.ini")) 
     playlist_ids = config.get("Play_Lists", "spotify_playlist_ids")
-    playlist_ids = [id.strip() for id in playlist_ids.split(",")]
+    playlist_ids = [id.strip() for id in playlist_ids.replace(" ", "").split(",")]
+
+    if len(playlist_ids) > 4:
+        print(f"{mensaje_hora} Warning: There are more than 4 playlist_id values. The other values will be ignored.")
+
+    valid_playlist_ids = []
+    for playlist_id in playlist_ids:
+        if len(playlist_id) == 22 and playlist_id.isalnum():
+            valid_playlist_ids.append(playlist_id)
+        else:
+            print(f"{mensaje_hora} Warning: The playlist_id '{playlist_id}' does not meet the required length of 22 characters. It has {len(playlist_id)} characters.")
+
+    playlist_ids = valid_playlist_ids[:4]
+
     return playlist_ids
 
 
@@ -109,12 +117,12 @@ for playlist_id in playlist_ids:
     playlist_duration = int(config.get('Playlist', 'duracion'))
     playlist_name = config.get('Playlist', 'nombre')
     print(f"{mensaje_hora} {config_file}")
-    print(f"ID de la lista de reproducción: {playlist_id}")
-    print(f"Nombre: {playlist_name}")
-    print(f"Duración: {playlist_duration}")
-    print("---")
-
-def playlist_favorite(playlist_id, playlist_history):
+    print(f"{mensaje_hora} ID de la lista de reproducción: {playlist_id}")
+    print(f"{mensaje_hora} Nombre: {playlist_name}")
+    print(f"{mensaje_hora} Duración: {playlist_duration}")
+    print(f"{mensaje_hora} ---")
+    
+def playlist_favorite(playlist_id):
     global is_playing   
     mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
     current_time = datetime.datetime.now().time()
@@ -123,16 +131,10 @@ def playlist_favorite(playlist_id, playlist_history):
     config_file = os.path.join(script_directory, "playlists", f"{playlist_id}.ini")
     config = configparser.ConfigParser()
     config.read(config_file)
-
     playlist_duration = 1 #int(config.get('Playlist', 'duracion'))
-    playlist_name = config.get('Playlist', 'nombre')
-
+    playlist_name =f"{Fore.LIGHTBLUE_EX}{config.get('Playlist', 'nombre')}{Style.RESET_ALL}"
     start_time = datetime.datetime.now() + datetime.timedelta(minutes=random_wait_time)
     end_time = start_time + datetime.timedelta(minutes=int(playlist_duration) + plus_time)
-
-    if playlist_id in playlist_history:
-        print(f"{mensaje_hora} Playlist {playlist_name} already played in this cycle. Skipping playlist.")
-        return
 
     stop_play_spotify()
     print(f"{mensaje_hora} Playing: {playlist_name} en {random_wait_time} segundos...")
@@ -140,6 +142,8 @@ def playlist_favorite(playlist_id, playlist_history):
 
     contador_reproducciones = 0
     is_playing = True 
+    control_verificacion_reproduccion()  # Llamada a la función para iniciar la verificación
+
     print(f"{mensaje_hora} Playing Main Playlist: {playlist_name} Duration {float(playlist_duration) + plus_time} Minutes, starting at {start_time} will stop on {end_time} ")
             
     while True:
@@ -155,7 +159,7 @@ def playlist_favorite(playlist_id, playlist_history):
             print(f"{mensaje_hora} Stopping Main Playlist: {playlist_name} elapsed time {float(playlist_duration) + plus_time} Minutos end_time={end_time}")
             is_playing = False 
             stop_play_spotify()
-            print(f"{mensaje_hora} Running and sending stats report for playlist:{playlist_name}...")
+            print(f"{mensaje_hora} Sending stats report for playlist:{playlist_name}...")
             time.sleep(5) # 300
             contador_reproducciones += 1
                     
@@ -163,75 +167,90 @@ def playlist_favorite(playlist_id, playlist_history):
                 print(f"{mensaje_hora} Playlist {playlist_name} already played. Stopping and aborting.")
                 stop_play_spotify()
                 is_playing = False
+                control_verificacion_reproduccion()  # Llamada a la función para detener la verificación
                 return
-            break 
-    
-    playlist_history.append(playlist_id)  # Agregar el playlist_id a la lista auxiliar
+            break
+
+import schedule
 
 
-def play_playlists_continuosly():
-    playlist_history = []  # Lista auxiliar para almacenar las playlist_id ya reproducidas
+def playlist_favorite_scheduler(playlist_ids):
+    playlist_history = []
+    scheduled_hours_day = load_scheduled_hours_day()
 
-    while True:
+    def playlist_favorite_wrapper(playlist_id):
         mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
         current_time = datetime.datetime.now().time()
 
         if is_playing:
-            print(f"{mensaje_hora} Play_playlists_continuosly: Ya está reproduciéndose.{current_time} Continuando la reproducción de la lista de reproducción favorita.")
-            time.sleep(30)
-            continue
+            print(f"{mensaje_hora} playlist_favorite_scheduler: Already playing at {current_time}. Continuing playback of favorite playlist.")
+            return
 
-        if not check_time_conditions():
-            playlist_ids = obtener_ids_playlist()
-            playlist_ids_to_play = [playlist_id for playlist_id in playlist_ids if playlist_id not in playlist_history]  # Obtener las playlist_id que aún no se han reproducido
+        print(f"{mensaje_hora} playlist_favorite_scheduler: Playing playlist {playlist_id}.")
+        playlist_favorite(playlist_id)
 
-            if len(playlist_ids_to_play) > 0:
-                playlist_id = playlist_ids_to_play[0]  # Tomar la primera playlist_id de las que aún no se han reproducido
-                print(f"{mensaje_hora} play_playlists_continuosly: Reproducirá Favorite {playlist_id}.")
-                playlist_favorite(playlist_id, playlist_history)
-            else:
-                print(f"{mensaje_hora} play_playlists_continuosly: All Playlist are played.... wait the next time.")
-                break
-        else:
-            print(f"{mensaje_hora} play_playlists_continuosly: Nothing to play.")
-            #playlist_random()
-        time.sleep(60)
+    for playlist_id in playlist_ids:
+        for scheduled_hour in scheduled_hours_day:
+            print(f"{mensaje_hora} The playlist {playlist_id} will be played at {scheduled_hour}.")
+            schedule.every().day.at(scheduled_hour).do(playlist_favorite_wrapper, playlist_id)
+
+    while True:
+        next_schedule = schedule.next_run()
+        current_time = datetime.datetime.now()
+        time_diff = next_schedule - current_time
+        countdown = time_diff.total_seconds()
+        countdown_str = str(datetime.timedelta(seconds=int(countdown)))
+        # {Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}
+        print(f"{mensaje_hora} Next playlist playback in: {Fore.CYAN}{countdown_str}{Style.RESET_ALL}")
+        time.sleep(1)
+        schedule.run_pending()
+
 
 def verificar_playing(max_reinicios):
-    while True:
-        global contador_reinicios, tiempo_inicial, cancion_anterior
+    global contador_reinicios, tiempo_inicial, cancion_anterior
+
+    while is_playing:
         while contador_reinicios < max_reinicios:
             obtener_hora_actual()
             mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
             cancion_actual = obtener_cancion_actual()
             current_time = datetime.datetime.now().time()
-            if not is_playing:
-                print(f"{mensaje_hora} Is not time to play music! ")
-                continue
+
             if cancion_actual == cancion_anterior:
                 if time.time() - tiempo_inicial >= 300: 
                     contador_reinicios += 1
-                    print(f"{mensaje_hora} Track \u266A{titulo}\u266A has no changed afther 5 minutes...")
-                    
+                    print(f"{mensaje_hora} Track \u266A{titulo}\u266A has not changed after 5 minutes...")
             else:
                 print(f"{mensaje_hora} Playing \u25B6: {Fore.BLUE}\u266A{titulo}\u266A{Style.RESET_ALL}, Artist{Fore.YELLOW} {artista}{Style.RESET_ALL}, Album {Fore.GREEN}{album}{Style.RESET_ALL}")
                 cancion_anterior = cancion_actual
-                tiempo_inicial = time.time() 
+                tiempo_inicial = time.time()
+
         print(f"{mensaje_hora} Spotify restarted {contador_reinicios} times in 30 min")
-        contador_reinicios = 0            
-        time.sleep(60) 
+        contador_reinicios = 0
+        time.sleep(60)
+
+import threading
+
+verificacion_reproduccion_thread = None
+def control_verificacion_reproduccion():
+    global is_playing, verificacion_reproduccion_thread
+
+    if is_playing and not verificacion_reproduccion_thread:
+        # Comenzar la verificación de reproducción en un hilo separado
+        verificacion_reproduccion_thread = threading.Thread(target=verificar_playing, args=(4,))
+        verificacion_reproduccion_thread.start()
+    elif not is_playing and verificacion_reproduccion_thread:
+        # Detener la verificación de reproducción
+        verificacion_reproduccion_thread.join()
+        verificacion_reproduccion_thread = None
 
 
 def main():
 
-    hilo_playlist = threading.Thread(target=play_playlists_continuosly)
-    #hilo_verificar_playing = threading.Thread(target=verificar_playing, args=(4,))
+    playlist_ids = obtener_ids_playlist()
 
-    hilo_playlist.start()
-    #hilo_verificar_playing.start()
-
-    hilo_playlist.join()
-    #hilo_verificar_playing.join()
+    playlist_thread = threading.Thread(target=playlist_favorite_scheduler, args=(playlist_ids,))
+    playlist_thread.start()
 
 if __name__ == "__main__":
     main()
