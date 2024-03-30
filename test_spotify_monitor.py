@@ -38,10 +38,9 @@ def verificar_y_abrir_spotify():
         print(f"{mensaje_hora} Spotify no está en ejecución. Abriendo Spotify...")
         lanzar_spotify()
         time.sleep(5)
-        subprocess.run(['vpn-con-rand'])
         minimizar_spotify()
     else:
-        print(f"{mensaje_hora} Spotify ya esta ejecutandose...")
+        print(f"{mensaje_hora} Spotify already running...")
 
 
 def verificar_spotify():
@@ -51,10 +50,10 @@ def verificar_spotify():
     except subprocess.CalledProcessError:
         return False
 
-def reset_spotify_app():
+def kill_spotify_app():
     subprocess.run(['pkill', 'spotify'])
     time.sleep(1)
-    lanzar_spotify()  
+
 
 def parse_time(time_str):
     return datetime.datetime.strptime(time_str, "%H:%M").time()
