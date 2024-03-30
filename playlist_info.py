@@ -34,7 +34,7 @@ def obtener_info_playlist_from_spotify(playlist_id):
                 if track_info is not None:
                     total_duration_ms += track_info['duration_ms']
                     track_name = track_info['name']
-                    artist_names = [artist['name'] for artist in track_info['artist']]
+                    artist_names = [artist['name'] for artist in track_info['artists']]
                     duration_minutes = (track_info['duration_ms'] // 1000 // 60) + 1
                     tracks.append({'name': track_name, 'artist': artist_names, 'duration': duration_minutes})
 
