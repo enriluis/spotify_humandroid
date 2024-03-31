@@ -2,6 +2,10 @@ import re
 import os
 from configparser import ConfigParser
 from termcolor import colored
+from colorama import Fore, Style
+from function_utils_aux import obtener_hora_actual
+
+mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
 
 def validate_email(email):
     pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
