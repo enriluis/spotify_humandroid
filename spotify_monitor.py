@@ -10,7 +10,25 @@ album_artista = ""
 album = ""
 contador_reinicios = 0
 cancion_anterior = ""
+import os
+import configparser
 
+def check_configuration():
+    config = configparser.ConfigParser()
+    config_file = os.path.join(os.path.dirname(__file__), "account.ini")
+    config.read(config_file)
+
+    is_configured = config.get("Credentials", "is_configured").lower()
+    if is_configured == "yes":
+        print("The script is configured.")
+    elif is_configured == "no":
+        print("The script is not configured. Launching the configuration assistant...")
+        run_configuration_assistant()
+    else:
+        print("The value of the 'is_configured' field in the configuration file is invalid.")
+
+
+    
 script_directory = os.path.dirname(os.path.abspath(__file__))
 
 def obtener_cancion_actual():
