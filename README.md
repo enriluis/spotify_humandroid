@@ -8,3 +8,5 @@ Of course, you need to have a Spotify account. The 'register_spotify_account.py'
 To play your favorite playlist, add it to the 'spotify_account.txt' file located in the script folder and schedule the time when you want it to play. During the remaining time, it will stop, and an empty function will be called, resulting in no action.
 
 After each round of playing your favorite playlist, the script will retrieve the statistics and send them to your Telegram Chat. You must identify the Chat ID and provide it in the configuration file.
+
+This github repo is for EDUCATIONAL AND TESTING PURPOSES ONLY. I am NOT under any responsibility if a problem occurs.
