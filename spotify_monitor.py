@@ -10,8 +10,8 @@ album_artista = ""
 album = ""
 contador_reinicios = 0
 cancion_anterior = ""
-import os
-import configparser
+
+from init_config import init_config_main
 
 def check_configuration():
     config = configparser.ConfigParser()
@@ -20,10 +20,11 @@ def check_configuration():
 
     is_configured = config.get("Credentials", "is_configured").lower()
     if is_configured == "yes":
-        print("The script is configured.")
+        print("The script is configured!!!!")
     elif is_configured == "no":
         print("The script is not configured. Launching the configuration assistant...")
-        run_configuration_assistant()
+        if __name__ == '__main__':
+            init_config_main()
     else:
         print("The value of the 'is_configured' field in the configuration file is invalid.")
 
@@ -101,7 +102,7 @@ your_username, your_password,creation_date,virtual_machine,bot_token,bot_chat_id
 is_playing = False
 
 def stop_play_spotify():
-    #subprocess.run(['sp', 'stop'])
+    subprocess.run(['sp', 'stop'])
     print(f"{mensaje_hora} Stop Music!")
 
 
@@ -143,12 +144,12 @@ def playlist_favorite(playlist_id):
     global is_playing   
     mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
     current_time = datetime.datetime.now().time()
-    plus_time = 0 #random.randint(0,1) 
-    random_wait_time = 0 #random.randint(0,1)
+    plus_time = random.randint(3, 15)
+    random_wait_time = random.randint(5, 20)
     config_file = os.path.join(script_directory, "playlists", f"{playlist_id}.ini")
     config = configparser.ConfigParser()
     config.read(config_file)
-    playlist_duration = 1 #int(config.get('Playlist', 'duracion'))
+    playlist_duration = int(config.get('Playlist', 'duration'))
     playlist_name =f"{Fore.LIGHTBLUE_EX}{config.get('Playlist', 'nombre')}{Style.RESET_ALL}"
     start_time = datetime.datetime.now() + datetime.timedelta(minutes=random_wait_time)
     end_time = start_time + datetime.timedelta(minutes=int(playlist_duration) + plus_time)
@@ -159,6 +160,7 @@ def playlist_favorite(playlist_id):
 
     contador_reproducciones = 0
     is_playing = True 
+    subprocess.run(['sp', 'open', f'spotify:playlist:{playlist_id}'])
     control_verificacion_reproduccion()  # Llamada a la función para iniciar la verificación
 
     print(f"{mensaje_hora} Playing Main Playlist: {playlist_name} Duration {float(playlist_duration) + plus_time} Minutes, starting at {start_time} will stop on {end_time} ")
@@ -169,7 +171,7 @@ def playlist_favorite(playlist_id):
                 
         if is_playing and current_time.time() < end_time.time():
             print(f"{mensaje_hora} The playlist {playlist_name} stil playing. Will end at {end_time} waiting and playing, relax...")
-            time.sleep(30)
+            time.sleep(900)
             continue
                 
         if current_time.time() >= end_time.time():
@@ -177,7 +179,9 @@ def playlist_favorite(playlist_id):
             is_playing = False 
             stop_play_spotify()
             print(f"{mensaje_hora} Sending stats report for playlist: {playlist_name}...")
-            time.sleep(5) # 300
+            script_estadisticas = os.path.join(script_directory, "estadisticas.py")
+            subprocess.run(['python3', script_estadisticas, playlist_id])        
+            time.sleep(300) # 300
             contador_reproducciones += 1
                     
             if contador_reproducciones >= 2:
@@ -189,7 +193,6 @@ def playlist_favorite(playlist_id):
             break
 
 import schedule
-
 
 def playlist_favorite_scheduler(playlist_ids):
     playlist_history = []
@@ -217,7 +220,6 @@ def playlist_favorite_scheduler(playlist_ids):
         time_diff = next_schedule - current_time
         countdown = time_diff.total_seconds()
         countdown_str = str(datetime.timedelta(seconds=int(countdown)))
-        # {Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}
         print(f"{mensaje_hora} Next playlist playback in: {Fore.CYAN}{countdown_str}{Style.RESET_ALL}")
         time.sleep(1)
         schedule.run_pending()

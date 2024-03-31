@@ -39,7 +39,7 @@ def print_confirmation(config):
     print(colored("Telegram Chat IDs:", "yellow"), config.get('telegram_bot', 'chat_ids'))
     print(colored("Scheduled Hours:", "yellow"), config.get('scheduled_time', 'scheduled_hours'))
 
-def main():
+def init_config_main():
     config = ConfigParser()
     config.read(os.path.join(os.path.dirname(__file__), "account.ini"))
 
@@ -91,4 +91,4 @@ def main():
         print(colored("\nThe configuration was not saved.", "yellow"))
 
 if __name__ == '__main__':
-    main()
+    init_config_main()
