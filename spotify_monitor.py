@@ -134,7 +134,7 @@ def playlist_favorite(playlist_id):
     config = configparser.ConfigParser()
     config.read(config_file)
     playlist_duration = int(config.get('Playlist', 'duration'))
-    playlist_name =f"{Fore.LIGHTBLUE_EX}{config.get('Playlist', 'nombre')}{Style.RESET_ALL}"
+    playlist_name =f"{Fore.LIGHTBLUE_EX}{config.get('Playlist', 'name')}{Style.RESET_ALL}"
     start_time = datetime.datetime.now() + datetime.timedelta(minutes=random_wait_time)
     end_time = start_time + datetime.timedelta(minutes=int(playlist_duration) + plus_time)
 
