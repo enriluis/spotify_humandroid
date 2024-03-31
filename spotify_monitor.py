@@ -1,9 +1,11 @@
 import time,subprocess,requests,random,os,configparser,threading,re,json,datetime
 from colorama import Fore, Style
 from function_utils_aux import obtener_ids_playlist, lanzar_spotify,obtener_hora_actual,minimizar_spotify,read_config
-
+import os
+os.environ['DISPLAY'] = ':0.0'
 mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
-# Declarar las variables globales
+
+
 titulo = ""
 artista = ""
 album_artista = ""

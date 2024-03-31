@@ -4,6 +4,9 @@ from config_assistant import init_config_main
 from function_utils_aux import obtener_hora_actual
 from colorama import Fore, Style
 
+import os
+os.environ['DISPLAY'] = ':0.0'
+
 script_directory = os.path.dirname(os.path.abspath(__file__))
 mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
 
