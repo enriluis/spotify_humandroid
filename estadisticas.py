@@ -27,7 +27,13 @@ nombre_archivo = (os.path.join(DIRECTORY, filename))
 def iniciar_sesion_get_stats(url, username, password):
     mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
     print(f"{mensaje_hora} Loging session in to spotify account ussing current credentials {your_username}")
+    import random
+    from selenium import webdriver
+    from selenium.webdriver.firefox.options import Options
+
     firefox_options = Options()
+    firefox_bin = "/snap/firefox/current/usr/lib/firefox/firefox"
+    firefoxdriver_bin = "/snap/firefox/current/usr/lib/firefox/geckodriver"
     user_agents = [
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
@@ -44,12 +50,14 @@ def iniciar_sesion_get_stats(url, username, password):
     ]
     random_user_agent = random.choice(user_agents)
 
-    firefox_options = Options()
-    random_user_agent = random.choice(user_agents)
     firefox_options.set_preference("general.useragent.override", random_user_agent)
-    print(f'{mensaje_hora} User Agent: {random_user_agent}')
+    firefox_options.binary_location = firefox_bin
+
     browser = webdriver.Firefox(options=firefox_options)
+
+    print(f'{mensaje_hora} User Agent: {random_user_agent}')
     browser.get(url) 
+
     time.sleep(3.1)
     browser.find_element(By.XPATH, "//input[@id='login-username']").send_keys(username)
     browser.find_element(By.XPATH, "//input[@id='login-password']").send_keys(password)
