@@ -23,7 +23,6 @@ timestamp = now.strftime("%d-%m-%Y_%H-%M")
 filename = "{}_{}.png".format(playlist_id, timestamp)
 nombre_archivo = (os.path.join(DIRECTORY, filename))
 
-
 def iniciar_sesion_get_stats(url, username, password):
     mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
     print(f"{mensaje_hora} Loging session in to spotify account ussing current credentials {your_username}")
