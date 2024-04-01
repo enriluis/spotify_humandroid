@@ -7,7 +7,6 @@ import configparser
 os.environ['DISPLAY'] = ':0'
 mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
 
-playlist_id = sys.argv[1]
 
 def obtener_info_playlist_from_spotify(playlist_id):
     config = configparser.ConfigParser()
