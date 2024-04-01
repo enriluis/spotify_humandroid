@@ -5,7 +5,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.firefox.options import Options
 import random, time, datetime, os,asyncio,configparser,sys
 from colorama import Fore, Style
-from telegram import Bot
+from playlist_info import obtener_info_playlist_from_spotify
 from function_utils_aux import obtener_hora_actual,read_config
 from telegram_aux import enviar_archivo_telegram
 
@@ -99,12 +99,12 @@ def iniciar_sesion_get_stats(url, username, password):
 
 
 def main():
-    import subprocess
-
+    obtener_info_playlist_from_spotify(playlist_id)
     url = "https://www.statsforspotify.com/track/recent"
     iniciar_sesion_get_stats(url, your_username, your_password)
     time.sleep(10)
-    #os.remove(nombre_archivo)
+    os.remove(nombre_archivo)
+    
 
 if __name__ == "__main__":
     main()

@@ -1,7 +1,7 @@
 import time,subprocess,requests,random,os,configparser,threading,re,json,datetime
 from colorama import Fore, Style
 from function_utils_aux import obtener_ids_playlist, lanzar_spotify,obtener_hora_actual,minimizar_spotify,read_config
-from playlist_info import process_playlist_files 
+from playlist_info import obtener_info_playlist_from_spotify
 import os
 os.environ['DISPLAY'] = ':0.0'
 mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
@@ -108,13 +108,29 @@ def obtener_ids_playlist():
             print(f"{mensaje_hora} Warning: The playlist_id '{playlist_id}' does not meet the required length of 22 characters. It has {len(playlist_id)} characters.")
 
     playlist_ids = valid_playlist_ids[:4]
-
     return playlist_ids
 
 
 playlist_ids = obtener_ids_playlist()
+
 for playlist_id in playlist_ids:
+    time_threshold = 24 * 60 * 60  # 24 hours in seconds
     config_file = os.path.join(script_directory, "playlists", f"{playlist_id}.ini")
+    if os.path.exists(config_file):
+        print(f"{mensaje_hora} File exists for playlist ID:", playlist_id) 
+        modification_time = os.path.getmtime(config_file)
+        current_time = time.time()
+        time_difference = current_time - modification_time
+
+        if time_difference > time_threshold:
+            print(f"{mensaje_hora} File is older than 24 hours for playlist ID:", playlist_id)
+            obtener_info_playlist_from_spotify(playlist_id)        
+        
+    else:
+        print(f"{mensaje_hora} File does not exist for playlist ID:", playlist_id)
+        print(f"{mensaje_hora} Downloading playlist info from Spotify API ID:", playlist_id)
+        obtener_info_playlist_from_spotify(playlist_id)
+               
     config = configparser.ConfigParser()
     config.read(config_file)
     playlist_duration = int(config.get('Playlist', 'duration'))
@@ -124,6 +140,7 @@ for playlist_id in playlist_ids:
     print(f"{mensaje_hora} Name: {playlist_name}")
     print(f"{mensaje_hora} Duration: {playlist_duration}")
     print(f"{mensaje_hora} ---")
+
     
 def playlist_favorite(playlist_id):
     global is_playing   
@@ -163,7 +180,6 @@ def playlist_favorite(playlist_id):
             print(f"{mensaje_hora} Stopping Main Playlist: {playlist_name} elapsed time {float(playlist_duration) + plus_time} Minutos end_time={end_time}")
             is_playing = False 
             stop_play_spotify()
-            process_playlist_files(playlist_id)
             print(f"{mensaje_hora} Sending stats report for playlist: {playlist_name}...")
             script_estadisticas = os.path.join(script_directory, "estadisticas.py")
             subprocess.run(['python3', script_estadisticas, playlist_id])        

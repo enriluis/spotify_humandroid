@@ -71,28 +71,3 @@ def obtener_info_playlist_from_spotify(playlist_id):
         time.sleep(5)
         return None
 
-
-def process_playlist_files(playlist_id):
-    playlist_path = os.path.join(os.path.dirname(__file__), "playlists")
-    time_threshold = 24 * 60 * 60  # 24 hours in seconds
-    playlist_file_path = os.path.join(playlist_path, playlist_id + ".ini")
-
-    if os.path.exists(playlist_file_path):
-        print(f"{mensaje_hora} File exists for playlist ID:", playlist_id)
-
-        modification_time = os.path.getmtime(playlist_file_path)
-        current_time = time.time()
-        time_difference = current_time - modification_time
-
-        if time_difference > time_threshold:
-            print(f"{mensaje_hora} File is older than 24 hours for playlist ID:", playlist_id)
-            obtener_info_playlist_from_spotify(playlist_id)
-            # Rest of the code using playlist_info if necessary
-    else:
-        print(f"{mensaje_hora} File does not exist for playlist ID:", playlist_id)
-        print(f"{mensaje_hora} Downloading playlist info from Spotify API ID:", playlist_id)
-        obtener_info_playlist_from_spotify(playlist_id)
-        # Rest of the code using playlist_info if necessary
-
-# Llamada a la función
-# process_playlist_files(playlist_id)
