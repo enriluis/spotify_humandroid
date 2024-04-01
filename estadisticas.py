@@ -9,12 +9,12 @@ from telegram import Bot
 from function_utils_aux import obtener_hora_actual,read_config
 from telegram_aux import enviar_archivo_telegram
 
-if len(sys.argv) == 4:
-    playlist_id = sys.argv[1]
+# Este script será ejecutado solo cuando se llame  
+# desde la funcion principal y pasandole como argumento 
+# el id de la playlist que se reprodujo en cuestion
+playlist_id = sys.argv[1]
 
-else:
-    your_username, your_password,creation_date,playlist_id,virtual_machine,bot_token,bot_chat_ids, spotify_client_id, spotify_client_secret = read_config()
-    bot_chat_ids = bot_chat_ids.split(',')  # split string to read multiples vaues separated by ,
+your_username, your_password,creation_date,virtual_machine,bot_token,bot_chat_ids, spotify_client_id, spotify_client_secret = read_config()
 
 mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
 DIRECTORY = os.path.join(os.path.dirname(__file__), "Stats")
@@ -78,7 +78,7 @@ def iniciar_sesion_get_stats(url, username, password):
 
     time.sleep(25.1)
     browser.save_full_page_screenshot(nombre_archivo)
-    print(f'{mensaje_hora} Caving web page as: {nombre_archivo} waiting a few seconds')
+    print(f'{mensaje_hora} Saving web page as: {nombre_archivo} waiting a few seconds')
     time.sleep(10.1)
     browser.quit()
     print(f'{mensaje_hora} Closing web browser')

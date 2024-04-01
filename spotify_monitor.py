@@ -1,6 +1,7 @@
 import time,subprocess,requests,random,os,configparser,threading,re,json,datetime
 from colorama import Fore, Style
 from function_utils_aux import obtener_ids_playlist, lanzar_spotify,obtener_hora_actual,minimizar_spotify,read_config
+from playlist_info import process_playlist_files 
 import os
 os.environ['DISPLAY'] = ':0.0'
 mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
@@ -162,6 +163,7 @@ def playlist_favorite(playlist_id):
             print(f"{mensaje_hora} Stopping Main Playlist: {playlist_name} elapsed time {float(playlist_duration) + plus_time} Minutos end_time={end_time}")
             is_playing = False 
             stop_play_spotify()
+            process_playlist_files(playlist_id)
             print(f"{mensaje_hora} Sending stats report for playlist: {playlist_name}...")
             script_estadisticas = os.path.join(script_directory, "estadisticas.py")
             subprocess.run(['python3', script_estadisticas, playlist_id])        

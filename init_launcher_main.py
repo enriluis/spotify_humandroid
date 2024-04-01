@@ -26,9 +26,9 @@ def check_configuration():
     else:
         print(f"{mensaje_hora} The value of the 'is_configured' field in the configuration file is invalid.")
         
-
         
 if __name__ == '__main__':
+    
     check_configuration()
     verificar_y_abrir_spotify()
     playlist_ids = obtener_ids_playlist()

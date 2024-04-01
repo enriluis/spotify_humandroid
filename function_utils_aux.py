@@ -187,7 +187,7 @@ def read_config():
     client_secret = config.get('spotify_credentials', 'client_secret')     
     return your_username, your_password,creation_date,virtual_machine,bot_token,bot_chat_ids, client_id, client_secret
 
-# lee el o los ids del fichero de configuracion.
+
 def obtener_ids_playlist():
     config = configparser.ConfigParser()
     config.read(os.path.join(os.path.dirname(__file__), "account.ini")) 
