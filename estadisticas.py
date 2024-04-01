@@ -94,15 +94,22 @@ def iniciar_sesion_get_stats(url, username, password):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     archivo_configuracion = os.path.join(current_dir, "playlists", playlist_id + ".ini")
 
-    config = configparser.ConfigParser()
-    config.read(archivo_configuracion)
-    playlist_name = config.get('Playlist', 'name')
-    playlist_duration_minutes = int(config.get('Playlist', 'duration'))
-    playlist_url = config.get('Playlist', 'url')
-    playlist_cover_image = config.get('Playlist', 'image_thumb')
-    caption_mensaje = (f'{playlist_name}\nDuración:{playlist_duration_minutes}\nURL:\n{playlist_url}\nPortada:\n{playlist_cover_image}')
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(enviar_archivo_telegram(bot_token, bot_chat_ids, archivo=nombre_archivo, caption=caption_mensaje))
+    if not os.path.exists(nombre_archivo):
+        print(f"El archivo {nombre_archivo} No existe.")
+
+    else:
+        print(f"El archivo {nombre_archivo} Existe.")
+        # Realizar cualquier acción adicional que desees para el caso de que el archivo no exista
+        config = configparser.ConfigParser()
+        config.read(archivo_configuracion)
+        playlist_name = config.get('Playlist', 'name')
+        playlist_duration_minutes = int(config.get('Playlist', 'duration'))
+        playlist_url = config.get('Playlist', 'url')
+        playlist_cover_image = config.get('Playlist', 'image_thumb')
+        caption_mensaje = (f'{playlist_name}\nDuración:{playlist_duration_minutes}\nURL:\n{playlist_url}\nPortada:\n{playlist_cover_image}')
+        chat_ids = [chat_id.strip() for chat_id in bot_chat_ids.split(',')]
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(enviar_archivo_telegram(bot_token, chat_ids, archivo=nombre_archivo, caption=caption_mensaje))
 
 
 def main():
