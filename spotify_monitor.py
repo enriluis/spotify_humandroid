@@ -87,8 +87,10 @@ your_username, your_password,creation_date,virtual_machine,bot_token,bot_chat_id
 is_playing = False
 
 def stop_play_spotify():
+    random_delay_ms = random.randint(100, 500)
+    time.sleep(random_delay_ms / 1000)
+    print(f"{mensaje_hora} Stop Music in {random_delay_ms}ms")
     subprocess.run(['sp', 'stop'])
-    print(f"{mensaje_hora} Stop Music!")
 
 
 def obtener_ids_playlist():
@@ -148,13 +150,17 @@ def playlist_favorite(playlist_id):
     current_time = datetime.datetime.now().time()
     plus_time = random.randint(3, 15)
     random_wait_time = random.randint(5, 20)
+    random_delay_ms_start = random.randint(500, 2000)  
+    random_delay_ms_end = random.randint(1000, 3000)  
+    playlist_duration = int(config.get('Playlist', 'duration'))
+    start_time = datetime.datetime.now() + datetime.timedelta(minutes=random_wait_time)
+    start_time += datetime.timedelta(milliseconds=random_delay_ms_start)  
+    end_time = start_time + datetime.timedelta(minutes=int(playlist_duration) + plus_time)
+    end_time += datetime.timedelta(milliseconds=random_delay_ms_end) 
     config_file = os.path.join(script_directory, "playlists", f"{playlist_id}.ini")
     config = configparser.ConfigParser()
     config.read(config_file)
-    playlist_duration = int(config.get('Playlist', 'duration'))
     playlist_name =f"{Fore.LIGHTBLUE_EX}{config.get('Playlist', 'name')}{Style.RESET_ALL}"
-    start_time = datetime.datetime.now() + datetime.timedelta(minutes=random_wait_time)
-    end_time = start_time + datetime.timedelta(minutes=int(playlist_duration) + plus_time)
 
     stop_play_spotify()
     print(f"{mensaje_hora} Playing: {playlist_name} en {random_wait_time} segundos...")
@@ -220,8 +226,8 @@ def playlist_favorite_scheduler(playlist_ids):
         next_schedule = schedule.next_run()
         current_time = datetime.datetime.now()
         time_diff = next_schedule - current_time
-        countdown = time_diff.total_seconds()
-        countdown_str = str(datetime.timedelta(seconds=int(countdown)))
+        countdown_minutes = time_diff.total_seconds() / 60
+        countdown_str = str(datetime.timedelta(minutes=int(countdown_minutes)))
         print(f"{mensaje_hora} Next playlist playback in: {Fore.CYAN}{countdown_str}{Style.RESET_ALL}")
         time.sleep(1)
         schedule.run_pending()
