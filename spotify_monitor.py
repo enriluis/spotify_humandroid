@@ -151,15 +151,17 @@ def playlist_favorite(playlist_id):
     plus_time = random.randint(3, 15)
     random_wait_time = random.randint(5, 20)
     random_delay_ms_start = random.randint(500, 2000)  
-    random_delay_ms_end = random.randint(1000, 3000)  
+    random_delay_ms_end = random.randint(1000, 3000)
+    config_file = os.path.join(script_directory, "playlists", f"{playlist_id}.ini")      
+    config = configparser.ConfigParser()
+    config.read(config_file)    
     playlist_duration = int(config.get('Playlist', 'duration'))
     start_time = datetime.datetime.now() + datetime.timedelta(minutes=random_wait_time)
     start_time += datetime.timedelta(milliseconds=random_delay_ms_start)  
     end_time = start_time + datetime.timedelta(minutes=int(playlist_duration) + plus_time)
     end_time += datetime.timedelta(milliseconds=random_delay_ms_end) 
-    config_file = os.path.join(script_directory, "playlists", f"{playlist_id}.ini")
-    config = configparser.ConfigParser()
-    config.read(config_file)
+
+
     playlist_name =f"{Fore.LIGHTBLUE_EX}{config.get('Playlist', 'name')}{Style.RESET_ALL}"
 
     stop_play_spotify()

@@ -1,0 +1,4 @@
+__pycache__
+account.ini
+playlist/*.ini
+.cache/
