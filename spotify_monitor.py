@@ -147,6 +147,7 @@ for playlist_id in playlist_ids:
 def playlist_favorite(playlist_id):
     global is_playing   
     mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
+    verificar_y_abrir_spotify() # verify and open spotify application
     current_time = datetime.datetime.now().time()
     plus_time = random.randint(3, 15)
     random_wait_time = random.randint(5, 20)
@@ -223,7 +224,7 @@ def playlist_favorite_scheduler(playlist_ids):
         for scheduled_hour in scheduled_hours_day:
             print(f"{mensaje_hora} The playlist {playlist_id} will be played at {scheduled_hour}.")
             schedule.every().day.at(scheduled_hour).do(playlist_favorite_wrapper, playlist_id)
-
+    
     while True:
         next_schedule = schedule.next_run()
         current_time = datetime.datetime.now()
@@ -275,7 +276,7 @@ def control_verificacion_reproduccion():
 
 
 def main():
-    verificar_y_abrir_spotify()
+    
     playlist_ids = obtener_ids_playlist()
 
     playlist_thread = threading.Thread(target=playlist_favorite_scheduler, args=(playlist_ids,))
