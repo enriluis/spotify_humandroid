@@ -224,7 +224,7 @@ def playlist_favorite_scheduler(playlist_ids):
         for scheduled_hour in scheduled_hours_day:
             print(f"{mensaje_hora} The playlist {playlist_id} will be played at {scheduled_hour}.")
             schedule.every().day.at(scheduled_hour).do(playlist_favorite_wrapper, playlist_id)
-    
+    kill_spotify_app()
     while True:
         next_schedule = schedule.next_run()
         current_time = datetime.datetime.now()
