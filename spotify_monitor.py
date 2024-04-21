@@ -41,7 +41,7 @@ def verificar_y_abrir_spotify():
     if not verificar_spotify():
         print(f"{mensaje_hora} Spotify no está en ejecución. Abriendo Spotify...")
         lanzar_spotify()
-        time.sleep(5)
+        time.sleep(8.102)
         minimizar_spotify()
     else:
         print(f"{mensaje_hora} Spotify already running...")
@@ -147,19 +147,22 @@ for playlist_id in playlist_ids:
 def playlist_favorite(playlist_id):
     global is_playing   
     mensaje_hora = f"[{Fore.GREEN}{obtener_hora_actual()}{Style.RESET_ALL}]"
+    verificar_y_abrir_spotify()
     current_time = datetime.datetime.now().time()
     plus_time = random.randint(3, 15)
     random_wait_time = random.randint(5, 20)
-    random_delay_ms_start = random.randint(500, 2000)  
-    random_delay_ms_end = random.randint(1000, 3000)  
+    random_delay_ms_start = random.randint(1000, 8000)  
+    random_delay_ms_end = random.randint(2000, 11000)
+    config_file = os.path.join(script_directory, "playlists", f"{playlist_id}.ini")      
+    config = configparser.ConfigParser()
+    config.read(config_file)    
     playlist_duration = int(config.get('Playlist', 'duration'))
     start_time = datetime.datetime.now() + datetime.timedelta(minutes=random_wait_time)
     start_time += datetime.timedelta(milliseconds=random_delay_ms_start)  
     end_time = start_time + datetime.timedelta(minutes=int(playlist_duration) + plus_time)
     end_time += datetime.timedelta(milliseconds=random_delay_ms_end) 
-    config_file = os.path.join(script_directory, "playlists", f"{playlist_id}.ini")
-    config = configparser.ConfigParser()
-    config.read(config_file)
+
+
     playlist_name =f"{Fore.LIGHTBLUE_EX}{config.get('Playlist', 'name')}{Style.RESET_ALL}"
 
     stop_play_spotify()
@@ -187,6 +190,7 @@ def playlist_favorite(playlist_id):
             is_playing = False 
             stop_play_spotify()
             print(f"{mensaje_hora} Sending stats report for playlist: {playlist_name}...")
+            kill_spotify_app()
             script_estadisticas = os.path.join(script_directory, "estadisticas.py")
             subprocess.run(['python3', script_estadisticas, playlist_id])        
             time.sleep(300) # 300
@@ -197,6 +201,7 @@ def playlist_favorite(playlist_id):
                 stop_play_spotify()
                 is_playing = False
                 control_verificacion_reproduccion()  # Llamada a la función para detener la verificación
+                kill_spotify_app()
                 return
             break
 
@@ -273,7 +278,7 @@ def control_verificacion_reproduccion():
 
 
 def main():
-    verificar_y_abrir_spotify()
+    #verificar_y_abrir_spotify()
     playlist_ids = obtener_ids_playlist()
 
     playlist_thread = threading.Thread(target=playlist_favorite_scheduler, args=(playlist_ids,))
