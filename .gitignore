@@ -4,4 +4,3 @@ playlist/*.ini
 .cache/
 images
 .cache
-get_id_telegrambot.py
